@@ -295,7 +295,7 @@ export const dinosaurs: Dinosaur[] = [
     weight: '465 kg',
     location: 'Antarctica',
     description:
-      'Cryolophosaurus holds the remarkable distinction of being the first dinosaur discovered in Antarctica, a continent now covered in ice but once warm and forested during the Jurassic period. Its name means "frozen crested lizard." Like Dilophosaurus, it bore an unusual crest on its head, but Cryolophosaurus had a forward-pointing, fan-shaped crest that was unique among all known dinosaurs. This unusual crest has earned it the nickname "Elvisaurus" because it resembles Elvis Presley's iconic pompadour hairstyle. It was a large predator for its time and era, hunting prey across what would have been a temperate, forested landscape at very high southern latitudes.',
+      'Cryolophosaurus holds the remarkable distinction of being the first dinosaur discovered in Antarctica, a continent now covered in ice but once warm and forested during the Jurassic period. Its name means "frozen crested lizard." Like Dilophosaurus, it bore an unusual crest on its head, but Cryolophosaurus had a forward-pointing, fan-shaped crest that was unique among all known dinosaurs. This unusual crest has earned it the nickname "Elvisaurus" because it resembles Elvis Presley\'s iconic pompadour hairstyle. It was a large predator for its time and era, hunting prey across what would have been a temperate, forested landscape at very high southern latitudes.',
     funFacts: [
       'It is the first dinosaur ever found in Antarctica.',
       'Its unique forward-facing crest has earned it the nickname "Elvisaurus."',
