@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Dinosaur } from '../data/dinosaurs';
 import { periodColors } from '../data/dinosaurs';
+import { DinoImage } from './DinoImage';
 import styles from './DinosaurCard.module.css';
 
 const DIET_EMOJI: Record<string, string> = {
@@ -8,12 +9,6 @@ const DIET_EMOJI: Record<string, string> = {
   Herbivore: '🌿',
   Omnivore: '🌾',
   Piscivore: '🐟',
-};
-
-const PERIOD_EMOJI: Record<string, string> = {
-  Triassic: '🏜️',
-  Jurassic: '🌴',
-  Cretaceous: '🌋',
 };
 
 interface Props {
@@ -25,14 +20,16 @@ export function DinosaurCard({ dinosaur }: Props) {
 
   return (
     <Link to={`/dinosaur/${dinosaur.id}`} className={styles.card}>
-      <div
-        className={styles.periodBadge}
-        style={{ backgroundColor: periodColor }}
-      >
-        {PERIOD_EMOJI[dinosaur.period]} {dinosaur.period}
-      </div>
-      <div className={styles.avatar} style={{ borderColor: periodColor }}>
-        <DinoSilhouette name={dinosaur.name} color={periodColor} />
+      <div className={styles.imgWrap} style={{ borderBottomColor: periodColor + '55' }}>
+        <DinoImage
+          dinoId={dinosaur.id}
+          dinoName={dinosaur.name}
+          accentColor={periodColor}
+          variant="card"
+        />
+        <div className={styles.periodBadge} style={{ backgroundColor: periodColor }}>
+          {dinosaur.period}
+        </div>
       </div>
       <div className={styles.info}>
         <h3 className={styles.name}>{dinosaur.name}</h3>
@@ -45,29 +42,5 @@ export function DinosaurCard({ dinosaur }: Props) {
         <p className={styles.location}>📍 {dinosaur.location}</p>
       </div>
     </Link>
-  );
-}
-
-function DinoSilhouette({ name, color }: { name: string; color: string }) {
-  const initial = name.charAt(0).toUpperCase();
-  return (
-    <div className={styles.silhouette} style={{ color }}>
-      <span className={styles.initial}>{initial}</span>
-      <svg viewBox="0 0 80 60" className={styles.svg} aria-hidden>
-        <path
-          d="M10 50 Q15 30 25 28 Q30 20 35 22 Q40 15 50 18 Q60 16 65 22 Q70 20 72 28 Q75 35 70 42 Q65 48 55 50 Q40 52 25 50 Z"
-          fill={color}
-          opacity="0.18"
-        />
-        <circle cx="62" cy="22" r="7" fill={color} opacity="0.22" />
-        <path
-          d="M55 18 Q58 12 65 14 Q68 16 66 20"
-          fill="none"
-          stroke={color}
-          strokeWidth="2"
-          opacity="0.3"
-        />
-      </svg>
-    </div>
   );
 }

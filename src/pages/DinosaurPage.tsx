@@ -1,8 +1,11 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { dinosaurs, periodColors } from '../data/dinosaurs';
+import { quizData } from '../data/quizData';
 import { useSpeech } from '../hooks/useSpeech';
 import { WordHighlighter } from '../components/WordHighlighter';
+import { QuizSection } from '../components/QuizSection';
+import { DinoImage } from '../components/DinoImage';
 import styles from './DinosaurPage.module.css';
 
 const DIET_EMOJI: Record<string, string> = {
@@ -16,210 +19,220 @@ export function DinosaurPage() {
   const { id } = useParams<{ id: string }>();
   const dinosaur = useMemo(() => dinosaurs.find((d) => d.id === id), [id]);
   const speech = useSpeech();
+  const [activeFact, setActiveFact] = useState<number | null>(null);
+  const [speakingTarget, setSpeakingTarget] = useState<'desc' | number | null>(null);
 
-  // Stop speech when navigating away
   useEffect(() => {
-    return () => speech.stop();
+    speech.stop();
+    setActiveFact(null);
+    setSpeakingTarget(null);
+    window.scrollTo(0, 0);
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!dinosaur) return <Navigate to="/" replace />;
 
+  const questions = quizData[dinosaur.id] ?? [];
   const periodColor = periodColors[dinosaur.period];
-  const currentIndex = dinosaurs.findIndex((d) => d.id === id);
-  const prevDino = currentIndex > 0 ? dinosaurs[currentIndex - 1] : null;
-  const nextDino = currentIndex < dinosaurs.length - 1 ? dinosaurs[currentIndex + 1] : null;
+  const currentIdx = dinosaurs.findIndex((d) => d.id === id);
+  const prev = currentIdx > 0 ? dinosaurs[currentIdx - 1] : null;
+  const next = currentIdx < dinosaurs.length - 1 ? dinosaurs[currentIdx + 1] : null;
 
-  const handlePlay = () => {
-    if (speech.isPaused) {
+  const handleDescPlay = () => {
+    if (speech.isPaused && speakingTarget === 'desc') {
       speech.resume();
     } else {
+      setSpeakingTarget('desc');
+      setActiveFact(null);
       speech.speak(dinosaur.description);
     }
   };
 
-  const isActive = speech.isPlaying || speech.isPaused;
+  const handleFactPlay = (i: number, text: string) => {
+    if (speakingTarget === i && speech.isPlaying) {
+      speech.stop();
+      setSpeakingTarget(null);
+      setActiveFact(null);
+      return;
+    }
+    setSpeakingTarget(i);
+    setActiveFact(i);
+    speech.speak(text);
+  };
+
+  const handleStop = () => {
+    speech.stop();
+    setSpeakingTarget(null);
+    setActiveFact(null);
+  };
+
+  const isDescPlaying = speakingTarget === 'desc' && (speech.isPlaying || speech.isPaused);
+  const isDescActive = speakingTarget === 'desc' && (speech.isPlaying || speech.isPaused);
 
   return (
     <div className={styles.page}>
-      {/* Back nav */}
+      {/* Top nav */}
       <nav className={styles.topNav}>
-        <Link to="/" className={styles.backBtn} onClick={speech.stop}>
-          ← All Dinosaurs
+        <Link to="/" className={styles.backBtn} onClick={handleStop}>
+          ← Back to Dinosaurs Land
         </Link>
-        <div className={styles.navArrows}>
-          {prevDino ? (
-            <Link to={`/dinosaur/${prevDino.id}`} className={styles.navArrow} onClick={speech.stop}>
-              ← {prevDino.name}
+        <div className={styles.arrows}>
+          {prev ? (
+            <Link to={`/dinosaur/${prev.id}`} className={styles.arrow} onClick={handleStop}>
+              ← {prev.name}
             </Link>
           ) : <span />}
-          {nextDino ? (
-            <Link to={`/dinosaur/${nextDino.id}`} className={styles.navArrow} onClick={speech.stop}>
-              {nextDino.name} →
+          {next ? (
+            <Link to={`/dinosaur/${next.id}`} className={styles.arrow} onClick={handleStop}>
+              {next.name} →
             </Link>
           ) : <span />}
         </div>
       </nav>
 
-      {/* Hero */}
-      <div className={styles.hero} style={{ borderBottomColor: periodColor }}>
-        <div className={styles.heroContent}>
-          <div
-            className={styles.periodPill}
-            style={{ backgroundColor: periodColor }}
-          >
-            {dinosaur.period} · {dinosaur.periodRange}
-          </div>
-          <h1 className={styles.name} style={{ color: periodColor }}>
-            {dinosaur.name}
-          </h1>
-          <div className={styles.statsRow}>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Diet</span>
-              <span className={styles.statValue}>
-                {DIET_EMOJI[dinosaur.diet]} {dinosaur.diet}
-              </span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Length</span>
-              <span className={styles.statValue}>📏 {dinosaur.length}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Weight</span>
-              <span className={styles.statValue}>⚖️ {dinosaur.weight}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>Found in</span>
-              <span className={styles.statValue}>📍 {dinosaur.location}</span>
-            </div>
-          </div>
-        </div>
-        <div className={styles.heroArt} style={{ borderColor: periodColor }}>
-          <span className={styles.heroInitial} style={{ color: periodColor }}>
-            {dinosaur.name.charAt(0)}
-          </span>
-          <svg viewBox="0 0 160 120" className={styles.heroSvg} aria-hidden>
-            <path
-              d="M20 100 Q30 60 50 56 Q60 40 70 44 Q80 30 100 36 Q120 32 130 44 Q140 40 144 56 Q150 70 140 84 Q130 96 110 100 Q80 104 50 100 Z"
-              fill={periodColor}
-              opacity="0.12"
-            />
-            <circle cx="124" cy="44" r="14" fill={periodColor} opacity="0.18" />
-            <path
-              d="M110 36 Q116 24 130 28 Q136 32 132 40"
-              fill="none"
-              stroke={periodColor}
-              strokeWidth="3"
-              opacity="0.28"
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className={styles.content}>
-        {/* Description + TTS */}
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Description</h2>
-            {!speech.supported && (
-              <span className={styles.unsupportedNote}>
-                ⚠️ Voice not supported in this browser
-              </span>
-            )}
-          </div>
-
-          <div className={styles.descriptionBox} style={{ borderColor: periodColor + '44' }}>
-            <WordHighlighter
-              text={dinosaur.description}
-              wordPositions={speech.wordPositions}
-              currentWordIndex={speech.currentWordIndex}
-              isActive={isActive}
-            />
-          </div>
-
-          {/* Voice controls */}
-          {speech.supported && (
-            <div className={styles.voiceControls}>
-              <button
-                className={`${styles.playBtn} ${speech.isPlaying ? styles.playBtnActive : ''}`}
-                style={{ '--accent': periodColor } as React.CSSProperties}
-                onClick={handlePlay}
-                disabled={speech.isPlaying}
-                aria-label={speech.isPaused ? 'Resume narration' : 'Play narration'}
-              >
-                {speech.isPlaying ? (
-                  <>
-                    <span className={styles.playIcon}>▶</span>
-                    <span className={styles.playLabel}>Playing…</span>
-                    <span className={styles.soundBars}>
-                      <span /><span /><span /><span />
-                    </span>
-                  </>
-                ) : speech.isPaused ? (
-                  <>
-                    <span className={styles.playIcon}>▶</span>
-                    <span className={styles.playLabel}>Resume</span>
-                  </>
-                ) : (
-                  <>
-                    <span className={styles.playIcon}>▶</span>
-                    <span className={styles.playLabel}>Listen</span>
-                  </>
-                )}
-              </button>
-
-              {speech.isPlaying && (
-                <button
-                  className={styles.controlBtn}
-                  onClick={speech.pause}
-                  aria-label="Pause narration"
-                >
-                  ⏸ Pause
-                </button>
-              )}
-
-              {isActive && (
-                <button
-                  className={styles.controlBtn}
-                  onClick={speech.stop}
-                  aria-label="Stop narration"
-                >
-                  ⏹ Stop
-                </button>
-              )}
-
-              {isActive && (
-                <div className={styles.progressIndicator}>
-                  <div
-                    className={styles.progressBar}
-                    style={{
-                      backgroundColor: periodColor,
-                      width: speech.wordPositions.length > 0
-                        ? `${((speech.currentWordIndex + 1) / speech.wordPositions.length) * 100}%`
-                        : '0%',
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+      {/* Two-column layout */}
+      <div className={styles.layout}>
+        {/* ── Left: Quiz ── */}
+        <aside className={styles.quizCol}>
+          {questions.length > 0 ? (
+            <QuizSection questions={questions} accentColor={periodColor} />
+          ) : (
+            <div className={styles.noQuiz}>No quiz available for this dinosaur.</div>
           )}
-        </section>
+        </aside>
 
-        {/* Fun Facts */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Fun Facts</h2>
-          <ul className={styles.factsList}>
-            {dinosaur.funFacts.map((fact, i) => (
-              <li key={i} className={styles.factItem} style={{ borderLeftColor: periodColor }}>
-                <span className={styles.factNum} style={{ color: periodColor }}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <span className={styles.factText}>{fact}</span>
-              </li>
+        {/* ── Right: Main content ── */}
+        <main className={styles.mainCol}>
+          {/* Hero image */}
+          <div className={styles.imageWrap} style={{ borderBottomColor: periodColor }}>
+            <DinoImage
+              dinoId={dinosaur.id}
+              dinoName={dinosaur.name}
+              accentColor={periodColor}
+              variant="hero"
+            />
+            <div className={styles.imageOverlay}>
+              <span className={styles.periodPill} style={{ backgroundColor: periodColor }}>
+                {dinosaur.period} · {dinosaur.periodRange}
+              </span>
+              <h1 className={styles.dinoName} style={{ color: '#fff' }}>
+                {dinosaur.name}
+              </h1>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className={styles.statsRow}>
+            {[
+              { label: 'Diet', value: `${DIET_EMOJI[dinosaur.diet]} ${dinosaur.diet}` },
+              { label: 'Length', value: `📏 ${dinosaur.length}` },
+              { label: 'Weight', value: `⚖️ ${dinosaur.weight}` },
+              { label: 'Found in', value: `📍 ${dinosaur.location}` },
+            ].map(({ label, value }) => (
+              <div key={label} className={styles.stat}>
+                <span className={styles.statLabel}>{label}</span>
+                <span className={styles.statValue}>{value}</span>
+              </div>
             ))}
-          </ul>
-        </section>
+          </div>
+
+          {/* Description */}
+          <section className={styles.section}>
+            <div className={styles.sectionHead}>
+              <h2 className={styles.sectionTitle}>Description</h2>
+            </div>
+            <div className={styles.descBox} style={{ borderColor: periodColor + '33' }}>
+              <WordHighlighter
+                text={dinosaur.description}
+                wordPositions={speakingTarget === 'desc' ? speech.wordPositions : []}
+                currentWordIndex={speakingTarget === 'desc' ? speech.currentWordIndex : -1}
+                isActive={isDescActive}
+              />
+            </div>
+
+            {speech.supported && (
+              <div className={styles.ttsRow}>
+                <button
+                  className={styles.listenBtn}
+                  style={{ '--accent': periodColor } as React.CSSProperties}
+                  onClick={handleDescPlay}
+                  disabled={isDescPlaying && !speech.isPaused}
+                >
+                  {speech.isPlaying && speakingTarget === 'desc' ? (
+                    <>▶ Playing… <SoundBars /></>
+                  ) : speech.isPaused && speakingTarget === 'desc' ? (
+                    '▶ Resume'
+                  ) : (
+                    '▶ Listen'
+                  )}
+                </button>
+                {speech.isPlaying && speakingTarget === 'desc' && (
+                  <button className={styles.ctrlBtn} onClick={speech.pause}>⏸ Pause</button>
+                )}
+                {(speech.isPlaying || speech.isPaused) && (
+                  <button className={styles.ctrlBtn} onClick={handleStop}>⏹ Stop</button>
+                )}
+                {isDescPlaying && (
+                  <div className={styles.progress}>
+                    <div
+                      className={styles.progressBar}
+                      style={{
+                        backgroundColor: periodColor,
+                        width: speech.wordPositions.length > 0
+                          ? `${((speech.currentWordIndex + 1) / speech.wordPositions.length) * 100}%`
+                          : '0%',
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Fun Facts */}
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Fun Facts</h2>
+            <p className={styles.factHint}>Click a fact to hear it read aloud</p>
+            <ul className={styles.facts}>
+              {dinosaur.funFacts.map((fact, i) => {
+                const isThisPlaying = activeFact === i && speech.isPlaying;
+                return (
+                  <li
+                    key={i}
+                    className={`${styles.fact} ${activeFact === i ? styles.factActive : ''}`}
+                    style={{ borderLeftColor: periodColor }}
+                    onClick={() => handleFactPlay(i, fact)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && handleFactPlay(i, fact)}
+                    aria-label={`Fact ${i + 1}: ${fact}. Click to hear.`}
+                  >
+                    <span className={styles.factNum} style={{ color: periodColor }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className={styles.factText}>{fact}</span>
+                    <button
+                      className={`${styles.factPlayBtn} ${isThisPlaying ? styles.factPlayBtnActive : ''}`}
+                      style={{ color: periodColor }}
+                      aria-label={isThisPlaying ? 'Stop' : 'Play'}
+                      onClick={(e) => { e.stopPropagation(); handleFactPlay(i, fact); }}
+                    >
+                      {isThisPlaying ? '⏹' : '🔊'}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </main>
       </div>
     </div>
+  );
+}
+
+function SoundBars() {
+  return (
+    <span className={styles.soundBars}>
+      <span /><span /><span /><span />
+    </span>
   );
 }

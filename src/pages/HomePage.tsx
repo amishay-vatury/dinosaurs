@@ -1,117 +1,119 @@
 import { useState, useMemo } from 'react';
 import { dinosaurs, periods, periodColors, periodDescriptions } from '../data/dinosaurs';
-import type { Period } from '../data/dinosaurs';
+import type { Period, Dinosaur } from '../data/dinosaurs';
 import { DinosaurCard } from '../components/DinosaurCard';
+import { HeroScene } from '../components/HeroScene';
 import styles from './HomePage.module.css';
 
 type FilterPeriod = Period | 'All';
-type FilterDiet = 'All' | 'Carnivore' | 'Herbivore' | 'Omnivore' | 'Piscivore';
 
 export function HomePage() {
   const [activePeriod, setActivePeriod] = useState<FilterPeriod>('All');
-  const [activeDiet, setActiveDiet] = useState<FilterDiet>('All');
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
-    return dinosaurs.filter((d) => {
-      if (activePeriod !== 'All' && d.period !== activePeriod) return false;
-      if (activeDiet !== 'All' && d.diet !== activeDiet) return false;
-      if (search && !d.name.toLowerCase().includes(search.toLowerCase())) return false;
-      return true;
-    });
-  }, [activePeriod, activeDiet, search]);
+    let list: Dinosaur[] = [...dinosaurs];
+    if (activePeriod !== 'All') list = list.filter((d) => d.period === activePeriod);
+    if (search) list = list.filter((d) => d.name.toLowerCase().includes(search.toLowerCase()));
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  }, [activePeriod, search]);
 
   const counts = useMemo(() => {
-    const byPeriod: Record<Period, number> = { Triassic: 0, Jurassic: 0, Cretaceous: 0 };
-    dinosaurs.forEach((d) => byPeriod[d.period]++);
-    return byPeriod;
+    const c: Record<Period, number> = { Triassic: 0, Jurassic: 0, Cretaceous: 0 };
+    dinosaurs.forEach((d) => c[d.period]++);
+    return c;
   }, []);
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>
-            <span className={styles.titleIcon}>🦕</span>
-            DinoWorld
-          </h1>
-          <p className={styles.subtitle}>
-            Explore {dinosaurs.length} prehistoric creatures across 186 million years of history
+      {/* ── Hero ── */}
+      <div className={styles.hero}>
+        <div className={styles.heroArt}>
+          <HeroScene />
+        </div>
+        <div className={styles.heroOverlay}>
+          <h1 className={styles.heroTitle}>Dinosaurs Land</h1>
+          <p className={styles.heroSub}>
+            Journey through {dinosaurs.length} creatures across 186&nbsp;million years of prehistoric Earth
           </p>
         </div>
-        <div className={styles.periodStats}>
-          {periods.map((p) => (
-            <div key={p} className={styles.periodStat} style={{ borderColor: periodColors[p] }}>
-              <span className={styles.periodStatCount} style={{ color: periodColors[p] }}>
-                {counts[p]}
-              </span>
-              <span className={styles.periodStatName}>{p}</span>
-              <span className={styles.periodStatRange}>{periodDescriptions[p]}</span>
-            </div>
-          ))}
-        </div>
-      </header>
+      </div>
 
-      <div className={styles.controls}>
+      {/* ── Search ── */}
+      <div className={styles.searchBar}>
         <input
           type="search"
-          placeholder="Search dinosaurs…"
+          placeholder="🔍  Search dinosaurs…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={styles.searchInput}
         />
+      </div>
 
-        <div className={styles.filterGroup}>
-          <span className={styles.filterLabel}>Period:</span>
+      {/* ── Body: sidebar + grid ── */}
+      <div className={styles.body}>
+        {/* Sidebar */}
+        <aside className={styles.sidebar}>
+          <p className={styles.sidebarLabel}>Periods</p>
+
           <button
-            className={`${styles.filterBtn} ${activePeriod === 'All' ? styles.filterBtnActive : ''}`}
+            className={`${styles.periodBtn} ${activePeriod === 'All' ? styles.periodBtnActive : ''}`}
             onClick={() => setActivePeriod('All')}
+            style={activePeriod === 'All' ? { backgroundColor: '#3a5a3a', borderColor: '#3a5a3a' } : {}}
           >
-            All ({dinosaurs.length})
+            <span className={styles.periodBtnEmoji}>🌍</span>
+            <span className={styles.periodBtnContent}>
+              <span className={styles.periodBtnName}>All Periods</span>
+              <span className={styles.periodBtnCount}>{dinosaurs.length} species</span>
+            </span>
           </button>
+
           {periods.map((p) => (
             <button
               key={p}
-              className={`${styles.filterBtn} ${activePeriod === p ? styles.filterBtnActive : ''}`}
-              style={activePeriod === p ? { backgroundColor: periodColors[p], borderColor: periodColors[p] } : { borderColor: periodColors[p], color: periodColors[p] }}
+              className={`${styles.periodBtn} ${activePeriod === p ? styles.periodBtnActive : ''}`}
               onClick={() => setActivePeriod(p)}
+              style={
+                activePeriod === p
+                  ? { backgroundColor: periodColors[p], borderColor: periodColors[p] }
+                  : { borderColor: periodColors[p] + '66', color: periodColors[p] }
+              }
             >
-              {p} ({counts[p]})
+              <span className={styles.periodBtnEmoji}>
+                {p === 'Triassic' ? '🏜️' : p === 'Jurassic' ? '🌴' : '🌋'}
+              </span>
+              <span className={styles.periodBtnContent}>
+                <span className={styles.periodBtnName}>{p}</span>
+                <span className={styles.periodBtnRange}>{periodDescriptions[p]}</span>
+                <span className={styles.periodBtnCount}>{counts[p]} species</span>
+              </span>
             </button>
           ))}
-        </div>
+        </aside>
 
-        <div className={styles.filterGroup}>
-          <span className={styles.filterLabel}>Diet:</span>
-          {(['All', 'Carnivore', 'Herbivore', 'Omnivore', 'Piscivore'] as FilterDiet[]).map((d) => (
-            <button
-              key={d}
-              className={`${styles.filterBtn} ${activeDiet === d ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveDiet(d)}
-            >
-              {d === 'All' ? 'All diets' : d}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {filtered.length === 0 ? (
-        <div className={styles.empty}>
-          <span>🔍</span>
-          <p>No dinosaurs found. Try a different search or filter.</p>
-        </div>
-      ) : (
-        <>
+        {/* Grid */}
+        <main className={styles.main}>
           <p className={styles.resultsCount}>
-            Showing {filtered.length} dinosaur{filtered.length !== 1 ? 's' : ''}
+            {filtered.length} dinosaur{filtered.length !== 1 ? 's' : ''}
+            {activePeriod !== 'All' ? ` · ${activePeriod}` : ''}
+            {search ? ` matching "${search}"` : ''}
+            {activePeriod !== 'All' && !search ? ' · alphabetical order' : ''}
           </p>
-          <div className={styles.grid}>
-            {filtered.map((dino) => (
-              <DinosaurCard key={dino.id} dinosaur={dino} />
-            ))}
-          </div>
-        </>
-      )}
+
+          {filtered.length === 0 ? (
+            <div className={styles.empty}>
+              <span>🔍</span>
+              <p>No dinosaurs found.</p>
+            </div>
+          ) : (
+            <div className={styles.grid}>
+              {filtered.map((dino) => (
+                <DinosaurCard key={dino.id} dinosaur={dino} />
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
