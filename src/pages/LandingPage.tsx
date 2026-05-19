@@ -13,6 +13,8 @@ const PERIODS: { name: Period; range: string; label: string }[] = [
 // Cycle through several iconic dinosaurs for the hero image
 const HERO_IDS = ['tyrannosaurus', 'brachiosaurus', 'spinosaurus', 'triceratops'];
 
+const SKELETON_WORDS = ['skeleton', 'fossil', 'holotype', 'specimen', 'skull', 'bone', 'mount'];
+
 function useHeroImage() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -28,7 +30,9 @@ function useHeroImage() {
           const data = await res.json();
           const url: string | null =
             data?.originalimage?.source ?? data?.thumbnail?.source ?? null;
-          if (url && !cancelled) { setImageUrl(url); return; }
+          const lower = (url ?? '').toLowerCase();
+          const isSkeleton = SKELETON_WORDS.some(w => lower.includes(w));
+          if (url && !isSkeleton && !cancelled) { setImageUrl(url); return; }
         } catch { /* try next */ }
       }
     })();

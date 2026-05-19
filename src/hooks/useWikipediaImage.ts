@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 
 const cache = new Map<string, string | null>();
 
-// Words that indicate a skeletal/fossil image rather than a life reconstruction
 const SKELETON_WORDS = [
   'skeleton', 'fossil', 'holotype', 'specimen', 'skull', 'bone',
   'mount', 'cast', 'femur', 'teeth', 'jaw', 'vertebra', 'mold',
+  'museum', 'exhibit', 'collection',
 ];
 
 function isSkeletonImage(url: string): boolean {
@@ -16,13 +16,50 @@ function isSkeletonImage(url: string): boolean {
 function isUsableImage(url: string): boolean {
   const lower = url.toLowerCase();
   if (isSkeletonImage(url)) return false;
-  // Skip maps, logos, icons
-  if (lower.includes('map') || lower.includes('logo') || lower.includes('icon') || lower.includes('flag')) return false;
-  return lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.png') || lower.endsWith('.webp');
+  if (lower.includes('map') || lower.includes('logo') || lower.includes('icon') ||
+      lower.includes('flag') || lower.includes('symbol') || lower.includes('clade')) return false;
+  return /\.(jpg|jpeg|png|webp)/i.test(lower);
+}
+
+// One Wikimedia Commons API call: search files + fetch their image URLs together
+async function searchCommonsImage(name: string): Promise<string | null> {
+  const queries = [
+    `${name} life restoration`,
+    `${name} restoration`,
+    `${name} paleoart`,
+    `${name} reconstruction`,
+  ];
+
+  for (const query of queries) {
+    try {
+      const r = await fetch(
+        `https://commons.wikimedia.org/w/api.php?action=query` +
+        `&generator=search&gsrsearch=${encodeURIComponent(query)}` +
+        `&gsrnamespace=6&gsrlimit=8` +
+        `&prop=imageinfo&iiprop=url&iiurlwidth=1200` +
+        `&format=json&origin=*`
+      );
+      if (!r.ok) continue;
+      const data = await r.json();
+      const pages = Object.values(data?.query?.pages ?? {}) as Array<{
+        title: string;
+        imageinfo?: Array<{ url: string; thumburl?: string }>;
+      }>;
+
+      for (const page of pages) {
+        // Skip if the file title itself looks like a skeleton
+        if (isSkeletonImage(page.title)) continue;
+        const imgUrl = page.imageinfo?.[0]?.thumburl ?? page.imageinfo?.[0]?.url;
+        if (imgUrl && isUsableImage(imgUrl)) return imgUrl;
+      }
+    } catch { /* try next query */ }
+  }
+
+  return null;
 }
 
 async function fetchBestImage(title: string): Promise<string | null> {
-  // Step 1: page summary — fast, cached by Wikipedia CDN
+  // 1. Wikipedia REST summary — fastest, good for popular dinosaurs
   try {
     const r = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
@@ -32,17 +69,20 @@ async function fetchBestImage(title: string): Promise<string | null> {
       const url: string | null = data?.originalimage?.source ?? data?.thumbnail?.source ?? null;
       if (url && !isSkeletonImage(url)) return url;
     }
-  } catch { /* network error, continue */ }
+  } catch { /* continue */ }
 
-  // Step 2: scan all images on the page, pick first life-reconstruction-looking one
+  // 2. Scan the Wikipedia page's media list for a non-skeleton image
   try {
     const r = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(title)}`
     );
     if (r.ok) {
       const data = await r.json();
-      const items: Array<{ type: string; original?: { source: string }; srcset?: Array<{ src: string }> }> =
-        data?.items ?? [];
+      const items: Array<{
+        type: string;
+        original?: { source: string };
+        srcset?: Array<{ src: string }>;
+      }> = data?.items ?? [];
       for (const item of items) {
         if (item.type !== 'image') continue;
         const raw = item.original?.source ?? item.srcset?.[0]?.src ?? '';
@@ -50,13 +90,13 @@ async function fetchBestImage(title: string): Promise<string | null> {
         if (isUsableImage(full)) return full;
       }
     }
-  } catch { /* ignore */ }
+  } catch { /* continue */ }
 
-  return null;
+  // 3. Search Wikimedia Commons specifically for life restoration art
+  return searchCommonsImage(title);
 }
 
 export function useWikipediaImage(dinoId: string) {
-  // Capitalize first letter — matches Wikipedia article titles for all single-word dino IDs
   const title = dinoId.charAt(0).toUpperCase() + dinoId.slice(1);
   const cached = cache.get(title);
 
