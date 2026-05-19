@@ -34,20 +34,28 @@ function pickVoice(): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
 
-  // Priority list — child-like, young, or natural-sounding voices first
-  const priority = [
-    'samantha', 'karen', 'moira', 'tessa', 'victoria', 'fiona',
-    'zira', 'aria', 'jenny', 'sonia', 'libby', 'susan',
-    'google uk english female', 'google us english',
-    'female', 'girl',
-  ];
+  // Edge Neural voices ("Natural") are far smoother than standard SAPI voices
+  const natural = voices.find(v => v.name.toLowerCase().includes('natural'));
+  if (natural) return natural;
 
+  // Google cloud voices (Chrome) are the next best
+  const googleUK = voices.find(v => v.name.toLowerCase() === 'google uk english female');
+  if (googleUK) return googleUK;
+  const googleUS = voices.find(v => v.name.toLowerCase() === 'google us english');
+  if (googleUS) return googleUS;
+
+  // Good system voices by priority
+  const priority = [
+    'aria', 'jenny', 'sonia', 'libby', 'emma',  // Microsoft online-quality
+    'samantha', 'karen', 'moira', 'tessa',       // macOS / iOS
+    'zira', 'hazel', 'susan',
+    'google', 'female', 'girl',
+  ];
   for (const keyword of priority) {
     const found = voices.find(v => v.name.toLowerCase().includes(keyword));
     if (found) return found;
   }
 
-  // Prefer any en-US / en-GB voice over others
   return voices.find(v => v.lang.startsWith('en')) ?? voices[0];
 }
 
@@ -61,7 +69,6 @@ export function useSpeech(): UseSpeechReturn {
 
   useEffect(() => {
     if (!supported) return;
-    // Pre-load voices (Chrome needs this trigger)
     window.speechSynthesis.getVoices();
     const handler = () => window.speechSynthesis.getVoices();
     window.speechSynthesis.addEventListener('voiceschanged', handler);
@@ -89,9 +96,9 @@ export function useSpeech(): UseSpeechReturn {
 
     const utterance = new SpeechSynthesisUtterance(text);
 
-    // Child-like voice settings: high pitch, light pace
-    utterance.pitch = 1.55;
-    utterance.rate = 0.87;
+    // Natural-sounding settings: lighter pitch, comfortable pace
+    utterance.pitch = 1.1;
+    utterance.rate = 0.9;
     utterance.volume = 1.0;
 
     const voice = pickVoice();
