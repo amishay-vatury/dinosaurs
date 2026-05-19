@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { dinosaurs } from '../data/dinosaurs';
 import type { Period } from '../data/dinosaurs';
+import { useSpeech } from '../hooks/useSpeech';
 import styles from './LandingPage.module.css';
 
 const PERIODS: { name: Period; range: string; label: string }[] = [
@@ -10,23 +11,41 @@ const PERIODS: { name: Period; range: string; label: string }[] = [
   { name: 'Cretaceous', range: '145 – 66 Million Years Ago',  label: 'CRETACEOUS' },
 ];
 
-// Charles R. Knight's iconic 1927 painting "Tyrannosaurus Rex and Triceratops"
-// from the American Museum of Natural History — public domain, Wikimedia Commons.
-// Secondary: his "Triceratops and Tyrannosaurus" mural (same scene, different scan).
-const HERO_PRIMARY =
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/' +
-  'Tyrannosaurus_Rex_and_Triceratops%2C_painting_by_Charles_R_Knight.jpg/' +
-  '1920px-Tyrannosaurus_Rex_and_Triceratops%2C_painting_by_Charles_R_Knight.jpg';
+const HERO_PRIMARY = '/landing_page.png';
 
+// Fallback: colorful Hell Creek scene by ABelov2014 (CC BY 3.0, Wikimedia Commons)
 const HERO_FALLBACK =
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/' +
-  'Triceratops_and_Tyrannosaurus_by_Knight.jpg/' +
-  '1920px-Triceratops_and_Tyrannosaurus_by_Knight.jpg';
+  'https://upload.wikimedia.org/wikipedia/commons/4/41/' +
+  'Dakotaraptor%2C_Edmontosaurus%2C_Pachycephalosaurus_and_Tyrannosaurus.jpg';
 
 export function LandingPage() {
   const navigate = useNavigate();
   const [src, setSrc] = useState(HERO_PRIMARY);
   const [loaded, setLoaded] = useState(false);
+  const speech = useSpeech();
+
+  useEffect(() => {
+    // Reset first-dino instructions so kids get them again each time they return to the menu.
+    sessionStorage.removeItem('dinoInstructionsPlayed');
+
+    // Browsers block speech without a prior user gesture. We fire on the first tap/click,
+    // which on a tablet happens the moment the child touches anything on the screen.
+    let spoken = false;
+    const onFirstInteraction = () => {
+      if (spoken) return;
+      spoken = true;
+      speech.speak(
+        'Welcome to Dinosaurs Land! Choose a time period to discover amazing dinosaurs. ' +
+        'Select Triassic, Jurassic, or Cretaceous to begin your adventure!'
+      );
+      document.removeEventListener('pointerdown', onFirstInteraction);
+    };
+    document.addEventListener('pointerdown', onFirstInteraction);
+    return () => {
+      document.removeEventListener('pointerdown', onFirstInteraction);
+      speech.stop();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const firstOfPeriod = useMemo(() => {
     const map: Record<Period, string> = { Triassic: '', Jurassic: '', Cretaceous: '' };
@@ -46,7 +65,7 @@ export function LandingPage() {
 
   return (
     <div className={styles.page}>
-      {/* Tyrannosaurus Rex & Triceratops — Charles R. Knight, 1927 */}
+      {/* Hero: many dinosaur species with volcano background */}
       <img
         src={src}
         className={`${styles.bgImg} ${loaded ? styles.bgImgLoaded : ''}`}

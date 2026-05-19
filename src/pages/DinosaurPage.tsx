@@ -45,6 +45,21 @@ export function DinosaurPage() {
     speech.stop();
     setSpeakingTarget(null);
     window.scrollTo({ top: 0 });
+
+    if (!dinosaur) return;
+
+    const alreadyPlayed = sessionStorage.getItem('dinoInstructionsPlayed');
+    const message = alreadyPlayed
+      ? `Meet ${dinosaur.name}!`
+      : `Meet ${dinosaur.name}! Press the dinosaur play button to hear all about this dinosaur, ` +
+        `and tap any fun fact to hear it out loud. ` +
+        `Use the arrows at the bottom to explore more dinosaurs!`;
+
+    const timer = setTimeout(() => {
+      if (!alreadyPlayed) sessionStorage.setItem('dinoInstructionsPlayed', 'true');
+      speech.speak(message);
+    }, 500);
+    return () => clearTimeout(timer);
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!dinosaur) return <Navigate to="/" replace />;
@@ -157,12 +172,17 @@ export function DinosaurPage() {
                   style={{ '--accent': periodColor } as React.CSSProperties}
                   onClick={handleDescPlay}
                   disabled={speech.isPlaying && speakingTarget === 'desc'}
+                  aria-label={
+                    speech.isPlaying && speakingTarget === 'desc' ? 'Speaking' :
+                    speech.isPaused && speakingTarget === 'desc' ? 'Resume' : 'Listen'
+                  }
                 >
+                  <span className={styles.listenDino}>🦕</span>
                   {speech.isPlaying && speakingTarget === 'desc' ? (
-                    <><SoundBars /> Speaking…</>
-                  ) : speech.isPaused && speakingTarget === 'desc' ? (
-                    '▶ Resume'
-                  ) : '▶ Listen'}
+                    <SoundBars />
+                  ) : (
+                    <span className={styles.listenPlay}>▶</span>
+                  )}
                 </button>
                 {speech.isPlaying && speakingTarget === 'desc' && (
                   <button className={styles.ctrlBtn} onClick={speech.pause}>⏸</button>
