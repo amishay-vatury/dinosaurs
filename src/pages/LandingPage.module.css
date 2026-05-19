@@ -20,11 +20,15 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 30%;
-  /* Image appears the moment the browser finishes downloading it.
-     The gradient above is the fallback while it loads. */
-  filter: saturate(0.8) brightness(0.62);
+  object-position: center 40%;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+  filter: saturate(0.75) brightness(0.58);
   transform: scale(1.04);
+}
+
+.bgImgLoaded {
+  opacity: 1;
 }
 
 /* ── Gradient overlay (darkens edges, ensures text contrast) ── */

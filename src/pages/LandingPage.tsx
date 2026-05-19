@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { dinosaurs } from '../data/dinosaurs';
 import type { Period } from '../data/dinosaurs';
 import styles from './LandingPage.module.css';
@@ -10,16 +10,23 @@ const PERIODS: { name: Period; range: string; label: string }[] = [
   { name: 'Cretaceous', range: '145 – 66 Million Years Ago',  label: 'CRETACEOUS' },
 ];
 
-// Pollinations.ai free AI image generation — no API key needed.
-// Seed=42 is widely cached; 800×450 generates fast (~3-5s on first load).
-const HERO_URL =
-  'https://image.pollinations.ai/prompt/' +
-  'prehistoric%20dinosaurs%20T-Rex%20Triceratops%20Velociraptor%20Spinosaurus%20Pteranodon' +
-  '%20Brachiosaurus%20dense%20jungle%20volcanic%20mountains%20dramatic%20sky%20wide%20shot' +
-  '?width=800&height=450&seed=42&nologo=true';
+// Charles R. Knight's iconic 1927 painting "Tyrannosaurus Rex and Triceratops"
+// from the American Museum of Natural History — public domain, Wikimedia Commons.
+// Secondary: his "Triceratops and Tyrannosaurus" mural (same scene, different scan).
+const HERO_PRIMARY =
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/' +
+  'Tyrannosaurus_Rex_and_Triceratops%2C_painting_by_Charles_R_Knight.jpg/' +
+  '1920px-Tyrannosaurus_Rex_and_Triceratops%2C_painting_by_Charles_R_Knight.jpg';
+
+const HERO_FALLBACK =
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/' +
+  'Triceratops_and_Tyrannosaurus_by_Knight.jpg/' +
+  '1920px-Triceratops_and_Tyrannosaurus_by_Knight.jpg';
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const [src, setSrc] = useState(HERO_PRIMARY);
+  const [loaded, setLoaded] = useState(false);
 
   const firstOfPeriod = useMemo(() => {
     const map: Record<Period, string> = { Triassic: '', Jurassic: '', Cretaceous: '' };
@@ -39,18 +46,18 @@ export function LandingPage() {
 
   return (
     <div className={styles.page}>
-      {/*
-        AI-generated prehistoric scene — T-Rex, Triceratops, Velociraptor,
-        Spinosaurus, Pteranodon, Brachiosaurus in a volcanic jungle.
-        Shows as soon as the browser finishes downloading it; the rich
-        gradient background is visible instantly while it loads.
-      */}
-      <img src={HERO_URL} className={styles.bgImg} alt="" aria-hidden />
+      {/* Tyrannosaurus Rex & Triceratops — Charles R. Knight, 1927 */}
+      <img
+        src={src}
+        className={`${styles.bgImg} ${loaded ? styles.bgImgLoaded : ''}`}
+        onLoad={() => setLoaded(true)}
+        onError={() => { if (src === HERO_PRIMARY) setSrc(HERO_FALLBACK); }}
+        alt=""
+        aria-hidden
+      />
 
-      {/* Gradient overlay */}
       <div className={styles.overlay} />
 
-      {/* Content */}
       <div className={styles.content}>
         <div className={styles.brand}>
           <p className={styles.eyebrow}>Explore the prehistoric world</p>
@@ -64,10 +71,7 @@ export function LandingPage() {
           {PERIODS.map(({ name, range, label }, i) => (
             <div key={name} className={styles.navItemWrap}>
               {i > 0 && <span className={styles.separator} aria-hidden />}
-              <button
-                className={styles.navItem}
-                onClick={() => handlePeriod(name)}
-              >
+              <button className={styles.navItem} onClick={() => handlePeriod(name)}>
                 <span className={styles.navLabel}>{label}</span>
                 <span className={styles.navRange}>{range}</span>
                 <span className={styles.navUnderline} aria-hidden />
