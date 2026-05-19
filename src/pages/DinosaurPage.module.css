@@ -1,47 +1,8 @@
-/* ── Page shell ── */
 .page {
   min-height: 100vh;
   background: #080e08;
   display: flex;
   flex-direction: column;
-  position: relative;
-}
-
-/* ── Full-page background image (stays fixed while content scrolls) ── */
-.pageBg {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 1.4s ease;
-  filter: brightness(0.38) saturate(0.75);
-}
-
-.pageBgLoaded {
-  opacity: 1;
-}
-
-/* ── Dark gradient overlay over the image ── */
-.pageOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  background:
-    linear-gradient(to right,
-      rgba(8, 14, 8, 0.94) 0%,
-      rgba(8, 14, 8, 0.60) 35%,
-      rgba(8, 14, 8, 0.70) 100%
-    ),
-    linear-gradient(to bottom,
-      rgba(8, 14, 8, 0.55) 0%,
-      transparent 25%,
-      transparent 65%,
-      rgba(8, 14, 8, 0.90) 100%
-    );
 }
 
 /* ── Top bar ── */
@@ -50,12 +11,12 @@
   align-items: center;
   gap: 16px;
   padding: 14px 28px;
-  background: rgba(8, 14, 8, 0.82);
+  background: rgba(8, 14, 8, 0.96);
   border-bottom: 1px solid rgba(255,255,255,0.06);
   position: sticky;
   top: 0;
   z-index: 30;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
 }
 
 .logoLink { text-decoration: none; }
@@ -89,8 +50,6 @@
 
 /* ── Layout ── */
 .layout {
-  position: relative;
-  z-index: 2;
   display: flex;
   flex: 1;
 }
@@ -103,9 +62,8 @@
   top: 53px;
   height: calc(100vh - 53px);
   overflow-y: auto;
-  background: rgba(5, 10, 5, 0.88);
-  backdrop-filter: blur(14px);
-  border-right: 1px solid rgba(255,255,255,0.07);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  background: #060c06;
 }
 
 .noQuiz {
@@ -123,13 +81,23 @@
   flex-direction: column;
 }
 
-/* ── Hero text — floated over the background image ── */
-.heroText {
-  padding: 56px 36px 40px;
+/* ── Hero image — very tall so full dinosaur is visible ── */
+.imageWrap {
+  position: relative;
+  border-bottom: 2px solid;
+  background: #0a120a;
+}
+
+.imageOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 80px 36px 32px;
+  background: linear-gradient(to top, rgba(8,14,8,0.92) 0%, rgba(8,14,8,0.4) 60%, transparent 100%);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  /* no background here — image shows through beautifully */
+  gap: 10px;
 }
 
 .periodPill {
@@ -141,21 +109,19 @@
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.92);
+  color: rgba(255,255,255,0.9);
   width: fit-content;
 }
 
 .dinoName {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
   font-weight: 300;
   color: #fff;
   margin: 0;
   letter-spacing: -0.01em;
-  line-height: 0.95;
-  text-shadow:
-    0 2px 20px rgba(0,0,0,0.9),
-    0 4px 60px rgba(0,0,0,0.7);
+  line-height: 1.0;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.8);
 }
 
 /* ── Stats strip ── */
@@ -163,10 +129,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  background: rgba(8, 14, 8, 0.80);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255,255,255,0.06);
   border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.3);
 }
 
 .stat {
@@ -195,12 +159,10 @@
   color: rgba(255,255,255,0.75);
 }
 
-/* ── Sections (description & facts) ── */
+/* ── Sections ── */
 .section {
   padding: 32px 36px;
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  background: rgba(8, 14, 8, 0.80);
-  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -212,7 +174,7 @@
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 1.4rem;
   font-weight: 400;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.7);
   margin: 0;
   letter-spacing: 0.02em;
 }
@@ -222,10 +184,10 @@
   border: 1px solid;
   border-radius: 4px;
   padding: 22px 26px;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.02);
 }
 
-/* ── TTS controls ── */
+/* ── TTS ── */
 .ttsRow {
   display: flex;
   align-items: center;
@@ -329,12 +291,12 @@
   padding: 15px 18px;
   border-left: 2px solid;
   border-radius: 0 4px 4px 0;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.02);
   cursor: pointer;
   transition: background 0.2s ease;
 }
-.fact:hover { background: rgba(255,255,255,0.06); }
-.factActive { background: rgba(255,255,255,0.06) !important; }
+.fact:hover { background: rgba(255,255,255,0.05); }
+.factActive { background: rgba(255,255,255,0.05) !important; }
 
 .factNum {
   font-family: 'Cormorant Garamond', serif;
@@ -348,7 +310,7 @@
 
 .factText {
   font-family: 'Inter', sans-serif;
-  color: rgba(255,255,255,0.72);
+  color: rgba(255,255,255,0.65);
   font-size: 0.93rem;
   line-height: 1.65;
   flex: 1;
@@ -370,8 +332,6 @@
   display: flex;
   align-items: stretch;
   border-top: 1px solid rgba(255,255,255,0.07);
-  background: rgba(8, 14, 8, 0.85);
-  backdrop-filter: blur(10px);
   margin-top: auto;
 }
 
@@ -389,7 +349,7 @@
   font-family: inherit;
   border-right: 1px solid rgba(255,255,255,0.06);
 }
-.bottomNavItem:hover { background: rgba(255,255,255,0.04); }
+.bottomNavItem:hover { background: rgba(255,255,255,0.03); }
 
 .bottomNavItemRight {
   text-align: right;
@@ -427,7 +387,7 @@
   transition: background 0.2s;
   min-width: 120px;
 }
-.bottomNavHome:hover { background: rgba(255,255,255,0.04); }
+.bottomNavHome:hover { background: rgba(255,255,255,0.03); }
 
 .bottomNavHomeLabel {
   font-family: 'Cormorant Garamond', Georgia, serif;
@@ -452,9 +412,8 @@
     border-bottom: 1px solid rgba(255,255,255,0.06);
   }
   .section { padding: 24px 20px; }
-  .statsRow { padding: 0; }
   .stat { padding: 12px 16px; }
-  .heroText { padding: 36px 20px 28px; }
+  .imageOverlay { padding: 60px 20px 24px; }
   .bottomNavHome { display: none; }
   .bottomNavItem { padding: 22px 20px; }
 }

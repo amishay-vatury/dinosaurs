@@ -10,10 +10,15 @@ const PERIODS: { name: Period; range: string; label: string }[] = [
   { name: 'Cretaceous', range: '145 – 66 Million Years Ago',  label: 'CRETACEOUS' },
 ];
 
-// Pollinations.ai free AI image: T-Rex, Triceratops, Velociraptor, Spinosaurus,
-// Pteranodon, Brachiosaurus together in a prehistoric jungle with volcanoes.
-const AI_HERO_URL =
-  'https://image.pollinations.ai/prompt/cinematic+prehistoric+landscape+tyrannosaurus+rex+roaring+triceratops+velociraptor+pack+spinosaurus+pteranodon+flying+brachiosaurus+lush+jungle+ferns+volcanic+mountains+erupting+dramatic+storm+sky+lightning+highly+detailed+paleoart+illustration+wide+landscape+16x9?width=1920&height=1080&seed=7842&nologo=true&model=flux';
+// Free AI image from Pollinations.ai — T-Rex, Triceratops, Velociraptor,
+// Spinosaurus, Pteranodon, Brachiosaurus in a prehistoric jungle landscape.
+// Seed is fixed so the same image loads every time. 960×540 generates fast (~5s).
+const HERO_URL =
+  'https://image.pollinations.ai/prompt/' +
+  'cinematic%20prehistoric%20landscape%20tyrannosaurus%20rex%20roaring%20triceratops%20velociraptor' +
+  '%20spinosaurus%20pteranodon%20flying%20brachiosaurus%20lush%20jungle%20volcanic%20mountains' +
+  '%20erupting%20dramatic%20stormy%20sky%20lightning%20highly%20detailed%20paleoart%20wide%20shot' +
+  '?width=960&height=540&seed=7842&nologo=true';
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -38,9 +43,9 @@ export function LandingPage() {
 
   return (
     <div className={styles.page}>
-      {/* AI-generated multi-dinosaur background image */}
+      {/* AI-generated prehistoric scene with multiple famous dinosaurs */}
       <img
-        src={AI_HERO_URL}
+        src={HERO_URL}
         className={`${styles.bgImg} ${imgLoaded ? styles.bgImgLoaded : ''}`}
         onLoad={() => setImgLoaded(true)}
         alt=""
@@ -52,7 +57,6 @@ export function LandingPage() {
 
       {/* Content */}
       <div className={styles.content}>
-        {/* Brand / title */}
         <div className={styles.brand}>
           <p className={styles.eyebrow}>Explore the prehistoric world</p>
           <h1 className={styles.title}>Dinosaurs Land</h1>
@@ -61,7 +65,6 @@ export function LandingPage() {
           </p>
         </div>
 
-        {/* Period navigation */}
         <nav className={styles.nav} aria-label="Choose a geological period">
           {PERIODS.map(({ name, range, label }, i) => (
             <div key={name} className={styles.navItemWrap}>
@@ -80,7 +83,6 @@ export function LandingPage() {
           ))}
         </nav>
 
-        {/* Scroll hint */}
         <div className={styles.scrollHint} aria-hidden>
           <span className={styles.scrollLine} />
           <span className={styles.scrollText}>Select a period</span>

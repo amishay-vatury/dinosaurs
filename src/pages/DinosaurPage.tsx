@@ -4,9 +4,9 @@ import { dinosaurs, periodColors } from '../data/dinosaurs';
 import type { Period } from '../data/dinosaurs';
 import { quizData } from '../data/quizData';
 import { useSpeech } from '../hooks/useSpeech';
-import { useWikipediaImage } from '../hooks/useWikipediaImage';
 import { WordHighlighter } from '../components/WordHighlighter';
 import { QuizSection } from '../components/QuizSection';
+import { DinoImage } from '../components/DinoImage';
 import styles from './DinosaurPage.module.css';
 
 const DIET_EMOJI: Record<string, string> = {
@@ -22,9 +22,6 @@ export function DinosaurPage() {
   const dinosaur = useMemo(() => dinosaurs.find(d => d.id === id), [id]);
   const speech = useSpeech();
   const [speakingTarget, setSpeakingTarget] = useState<'desc' | number | null>(null);
-  const [bgLoaded, setBgLoaded] = useState(false);
-
-  const { imageUrl } = useWikipediaImage(dinosaur?.id ?? '');
 
   const periodList = useMemo(() => {
     const list = periodParam
@@ -47,7 +44,6 @@ export function DinosaurPage() {
   useEffect(() => {
     speech.stop();
     setSpeakingTarget(null);
-    setBgLoaded(false);
     window.scrollTo({ top: 0 });
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -79,19 +75,7 @@ export function DinosaurPage() {
 
   return (
     <div className={styles.page}>
-      {/* ── Full-page background image ── */}
-      {imageUrl && (
-        <img
-          src={imageUrl}
-          className={`${styles.pageBg} ${bgLoaded ? styles.pageBgLoaded : ''}`}
-          onLoad={() => setBgLoaded(true)}
-          alt=""
-          aria-hidden
-        />
-      )}
-      <div className={styles.pageOverlay} />
-
-      {/* ── Top bar ── */}
+      {/* Top bar */}
       <header className={styles.topBar}>
         <Link to="/" className={styles.logoLink} onClick={handleStop}>
           <span className={styles.logoText}>Dinosaurs Land</span>
@@ -106,7 +90,7 @@ export function DinosaurPage() {
         </span>
       </header>
 
-      {/* ── Two-column body ── */}
+      {/* Two-column body */}
       <div className={styles.layout}>
         {/* Quiz sidebar */}
         <aside className={styles.quizCol}>
@@ -119,15 +103,23 @@ export function DinosaurPage() {
 
         {/* Main content */}
         <main className={styles.mainCol}>
-          {/* Hero text — name + period, floated over the background */}
-          <div className={styles.heroText}>
-            <span
-              className={styles.periodPill}
-              style={{ backgroundColor: periodColor + 'cc' }}
-            >
-              {dinosaur.period} · {dinosaur.periodRange}
-            </span>
-            <h1 className={styles.dinoName}>{dinosaur.name}</h1>
+          {/* Hero image — tall, shows full dinosaur */}
+          <div className={styles.imageWrap} style={{ borderBottomColor: periodColor }}>
+            <DinoImage
+              dinoId={dinosaur.id}
+              dinoName={dinosaur.name}
+              accentColor={periodColor}
+              variant="hero"
+            />
+            <div className={styles.imageOverlay}>
+              <span
+                className={styles.periodPill}
+                style={{ backgroundColor: periodColor + 'cc' }}
+              >
+                {dinosaur.period} · {dinosaur.periodRange}
+              </span>
+              <h1 className={styles.dinoName}>{dinosaur.name}</h1>
+            </div>
           </div>
 
           {/* Stats strip */}
@@ -218,7 +210,7 @@ export function DinosaurPage() {
             </ul>
           </section>
 
-          {/* Bottom prev / next navigation */}
+          {/* Bottom prev / next */}
           <nav className={styles.bottomNav}>
             {prev ? (
               <button
@@ -231,11 +223,9 @@ export function DinosaurPage() {
             ) : (
               <span />
             )}
-
             <Link to="/" className={styles.bottomNavHome} onClick={handleStop}>
               <span className={styles.bottomNavHomeLabel}>Dinosaurs Land</span>
             </Link>
-
             {next ? (
               <button
                 className={`${styles.bottomNavItem} ${styles.bottomNavItemRight}`}
