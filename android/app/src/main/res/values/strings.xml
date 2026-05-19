@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Dinosaurs Land</string>
+    <string name="title_activity_main">Dinosaurs Land</string>
+    <string name="package_name">com.dinosaursland.app</string>
+    <string name="custom_url_scheme">com.dinosaursland.app</string>
+</resources>
