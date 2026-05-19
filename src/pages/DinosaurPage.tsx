@@ -95,7 +95,7 @@ export function DinosaurPage() {
         {/* Quiz sidebar */}
         <aside className={styles.quizCol}>
           {questions.length > 0 ? (
-            <QuizSection questions={questions} accentColor={periodColor} />
+            <QuizSection key={dinosaur.id} questions={questions} accentColor={periodColor} />
           ) : (
             <p className={styles.noQuiz}>No quiz for this dinosaur yet.</p>
           )}
@@ -106,9 +106,9 @@ export function DinosaurPage() {
           {/* Hero image — tall, shows full dinosaur */}
           <div className={styles.imageWrap} style={{ borderBottomColor: periodColor }}>
             <DinoImage
-              dinoId={dinosaur.id}
               dinoName={dinosaur.name}
               accentColor={periodColor}
+              imageUrl={dinosaur.imageUrl}
               variant="hero"
             />
             <div className={styles.imageOverlay}>

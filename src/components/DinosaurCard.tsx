@@ -22,9 +22,9 @@ export function DinosaurCard({ dinosaur }: Props) {
     <Link to={`/dinosaur/${dinosaur.id}`} className={styles.card}>
       <div className={styles.imgWrap} style={{ borderBottomColor: periodColor + '55' }}>
         <DinoImage
-          dinoId={dinosaur.id}
           dinoName={dinosaur.name}
           accentColor={periodColor}
+          imageUrl={dinosaur.imageUrl}
           variant="card"
         />
         <div className={styles.periodBadge} style={{ backgroundColor: periodColor }}>

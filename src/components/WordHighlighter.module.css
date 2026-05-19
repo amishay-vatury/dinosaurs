@@ -9,16 +9,11 @@
 
 .word {
   display: inline;
-  border-radius: 3px;
-  padding: 0 1px;
-  transition: background-color 0.1s ease, color 0.1s ease;
+  transition: color 0.1s ease;
 }
 
 .highlighted {
-  background-color: #f5c842;
-  color: #1a1a0e;
-  border-radius: 3px;
-  padding: 1px 3px;
+  color: #f5c842;
   font-weight: 600;
 }
 

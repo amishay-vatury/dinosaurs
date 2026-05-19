@@ -355,4 +355,157 @@ export const quizData: Record<string, QuizQuestion[]> = {
     { question: 'How did Mosasaurus move its tail?', options: ['Side to side, like a fish', 'Up and down, like a whale', 'Using fins, not its tail'], correctIndex: 1 },
     { question: 'What unusual tooth feature did Mosasaurus have?', options: ['No teeth at all — just a beak', 'A second row of teeth on the roof of its mouth', 'Teeth that grew back constantly'], correctIndex: 1 },
   ],
+
+  // ── Auto-generated from fun facts ─────────────────────────────────────────
+
+  saturnalia: [
+    { question: 'Where were Saturnalia fossils discovered?', options: ['Rio Grande do Sul, Brazil', 'Ischigualasto, Argentina', 'Sichuan, China'], correctIndex: 0 },
+    { question: 'What is Saturnalia\'s significance among sauropodomorphs?', options: ['The largest ever discovered', 'One of the most primitive ever known', 'The first to develop a very long tail'], correctIndex: 1 },
+    { question: 'Which predator did Saturnalia coexist with in Triassic South America?', options: ['Herrerasaurus', 'Staurikosaurus', 'Coelophysis'], correctIndex: 1 },
+  ],
+  lessemsaurus: [
+    { question: 'Who is Lessemsaurus named after?', options: ['A region in Argentina', 'Don Lessen, founder of the Dinosaur Society', 'A famous fossil hunter'], correctIndex: 1 },
+    { question: 'What is Lessemsaurus significant for?', options: ['Being one of the fastest Triassic dinosaurs', 'Being one of the earliest examples of the giant sauropod body plan', 'Having the longest neck of any Triassic dinosaur'], correctIndex: 1 },
+    { question: 'How many Lessemsaurus specimens have been found?', options: ['Only one', 'Over 50', 'About a dozen'], correctIndex: 0 },
+  ],
+  efraasia: [
+    { question: 'Who is Efraasia named after?', options: ['A region in Germany', 'E. Fraas, a German paleontologist', 'The city of Erfurt'], correctIndex: 1 },
+    { question: 'How did Efraasia feed on conifer trees?', options: ['It shook the trees to make branches fall', 'It reared up on hind legs and used hand claws to pull branches down', 'It knocked trees over with its tail'], correctIndex: 1 },
+    { question: 'Where was Efraasia discovered?', options: ['South America', 'France and Germany', 'North America'], correctIndex: 1 },
+  ],
+  ingentia: [
+    { question: 'What assumption did Ingentia\'s discovery challenge?', options: ['That dinosaurs were cold-blooded', 'That gigantism in sauropods only evolved in the Jurassic', 'That Triassic dinosaurs were all carnivores'], correctIndex: 1 },
+    { question: 'What title has Ingentia been given by scientists?', options: ['The first true flyer', 'The first true giant of its time', 'The first true pack hunter'], correctIndex: 1 },
+    { question: 'Where was Ingentia discovered?', options: ['China', 'North America', 'Argentina'], correctIndex: 2 },
+  ],
+  chindesaurus: [
+    { question: 'What is Chindesaurus significant for being?', options: ['The largest Triassic predator', 'One of the earliest dinosaurs known from North America', 'The first feathered dinosaur'], correctIndex: 1 },
+    { question: 'How did Chindesaurus hunt its prey?', options: ['It ambushed prey from trees', 'It sprinted aggressively through dense vegetation', 'It hunted in rivers like Spinosaurus'], correctIndex: 1 },
+    { question: 'In which US states were Chindesaurus fossils found?', options: ['Texas and New Mexico', 'Montana and Wyoming', 'Utah and Colorado'], correctIndex: 0 },
+  ],
+  eodromaeus: [
+    { question: 'What does "Eodromaeus" mean?', options: ['Ancient lizard', 'Dawn runner', 'Small predator'], correctIndex: 1 },
+    { question: 'What type of teeth did Eodromaeus have?', options: ['Flat leaf-shaped teeth for plants', 'Sabre-like canine teeth for catching prey', 'No teeth — just a beak'], correctIndex: 1 },
+    { question: 'What is Eodromaeus\'s evolutionary significance?', options: ['It is considered a basal theropod near the origin of that entire group', 'It is the ancestor of all sauropods', 'It is the first known dinosaur to have feathers'], correctIndex: 0 },
+  ],
+  supersaurus: [
+    { question: 'What record does Supersaurus potentially hold?', options: ['The heaviest dinosaur ever', 'The longest dinosaur ever discovered', 'The tallest dinosaur ever'], correctIndex: 1 },
+    { question: 'On which continents have Supersaurus fossils been found?', options: ['Only North America', 'North America and Europe', 'All seven continents'], correctIndex: 1 },
+    { question: 'What did Supersaurus eat?', options: ['Meat from large prey animals', 'Cycads, ferns, and conifers', 'Fish from rivers'], correctIndex: 1 },
+  ],
+  heterodontosaurus: [
+    { question: 'What is unique about Heterodontosaurus\'s teeth?', options: ['The largest teeth of any small dinosaur', 'Three distinct types of teeth — the most varied of any known dinosaur', 'No teeth at all — just a beak'], correctIndex: 1 },
+    { question: 'How did male Heterodontosaurus compete for mates?', options: ['With large bony horns on their heads', 'With fang-like tusks and brightly colored cheeks', 'With elaborate tail feathers'], correctIndex: 1 },
+    { question: 'How much did Heterodontosaurus weigh?', options: ['About 1.8 kg — the size of a large cat', 'About 50 kg — the size of a dog', 'About 200 kg — the size of a cow'], correctIndex: 0 },
+  ],
+  anchisaurus: [
+    { question: 'Where were Anchisaurus fossils discovered?', options: ['Montana and Wyoming', 'Massachusetts and New York', 'Argentina and Brazil'], correctIndex: 1 },
+    { question: 'How did Anchisaurus feed on high vegetation?', options: ['It only fed at ground level', 'It used grasping hands to pull branches down and reared up on hind legs', 'It knocked trees over with its tail'], correctIndex: 1 },
+    { question: 'What is the significance of Anchisaurus fossils from eastern North America?', options: ['The most numerous sauropod fossils ever found', 'Among the earliest dinosaur fossils known from eastern North America', 'They show the first evidence of feathers in North America'], correctIndex: 1 },
+  ],
+  monolophosaurus: [
+    { question: 'How many crests did Monolophosaurus have on its head?', options: ['None at all', 'One single crest on its snout', 'Two crests, like Dilophosaurus'], correctIndex: 1 },
+    { question: 'What might the crest of Monolophosaurus have been used for?', options: ['Digging for food underground', 'Display or warning — possibly colored red', 'Headbutting rivals like Pachycephalosaurus'], correctIndex: 1 },
+    { question: 'Where was Monolophosaurus discovered?', options: ['North America', 'Africa', 'Xinjiang, China'], correctIndex: 2 },
+  ],
+  scelidosaurus: [
+    { question: 'What is Scelidosaurus notable for being?', options: ['The largest Jurassic herbivore', 'One of the earliest known armored dinosaurs', 'The first dinosaur found with feathers'], correctIndex: 1 },
+    { question: 'What did Scelidosaurus do when threatened by predators?', options: ['It ran away as fast as possible', 'It planted feet wide and lowered its center of gravity to present armored flanks', 'It inflated its body to look bigger'], correctIndex: 1 },
+    { question: 'In which two locations have Scelidosaurus fossils been found?', options: ['Montana and Argentina', 'England and Tibet', 'Germany and Tanzania'], correctIndex: 1 },
+  ],
+  proceratosaurus: [
+    { question: 'What is Proceratosaurus\'s surprising evolutionary relationship?', options: ['It is an ancestor of Spinosaurus', 'It is one of the earliest known tyrannosauroids', 'It was the first ceratopsian'], correctIndex: 1 },
+    { question: 'What was the likely function of Proceratosaurus\'s nasal crest?', options: ['To look bigger to rivals', 'Heat regulation — it had vascularized tissue inside', 'To make loud calls for communication'], correctIndex: 1 },
+    { question: 'Where was the Proceratosaurus skull originally discovered?', options: ['Germany', 'Mongolia', 'Gloucestershire, England'], correctIndex: 2 },
+  ],
+  barosaurus: [
+    { question: 'What does the famous Barosaurus mount at the American Museum of Natural History show?', options: ['A Barosaurus eating from tall trees', 'A Barosaurus rearing up to defend a juvenile from Allosaurus', 'A group of Barosaurus walking in a herd'], correctIndex: 1 },
+    { question: 'What was Barosaurus\'s "tripodal stance"?', options: ['Standing on three legs to rest', 'Rearing up on hind legs and using its tail as a third support for defense', 'A swimming position using tail and two back legs'], correctIndex: 1 },
+    { question: 'To which other sauropod was Barosaurus closely related?', options: ['Brachiosaurus', 'Apatosaurus', 'Diplodocus'], correctIndex: 2 },
+  ],
+  torvosaurus: [
+    { question: 'Which famous predator did Torvosaurus rival as apex predator of the Late Jurassic?', options: ['Tyrannosaurus Rex', 'Spinosaurus', 'Allosaurus'], correctIndex: 2 },
+    { question: 'On how many continents have Torvosaurus fossils been found?', options: ['One — North America only', 'Two — North America and Europe', 'Three — North America, Europe, and Africa'], correctIndex: 1 },
+    { question: 'What does fossil evidence of Torvosaurus marks on sauropod bones tell us?', options: ['They were peaceful neighbors', 'Torvosaurus actively preyed on or scavenged large sauropods', 'Torvosaurus only ate plants'], correctIndex: 1 },
+  ],
+  hesperosaurus: [
+    { question: 'How did Hesperosaurus defend itself against predators like Ceratosaurus?', options: ['With powerful front legs and claws', 'With defensive tail spikes (thagomizer)', 'By hiding in water'], correctIndex: 1 },
+    { question: 'Where have all known Hesperosaurus fossils been found?', options: ['Exclusively in Wyoming\'s Morrison Formation', 'Africa and Europe', 'Montana and South Dakota'], correctIndex: 0 },
+    { question: 'Which dinosaur was Hesperosaurus closely related to?', options: ['Ankylosaurus', 'Stegosaurus', 'Brachiosaurus'], correctIndex: 1 },
+  ],
+  abrictosaurus: [
+    { question: 'How many specimens of Abrictosaurus are known?', options: ['Over 100', 'About a dozen', 'Only one'], correctIndex: 2 },
+    { question: 'To which dinosaur family did Abrictosaurus belong?', options: ['Tyrannosaurs', 'Heterodontosaurids', 'Sauropods'], correctIndex: 1 },
+    { question: 'Where was Abrictosaurus discovered?', options: ['South America', 'North America', 'Lesotho, Africa'], correctIndex: 2 },
+  ],
+  liopleurodon: [
+    { question: 'Liopleurodon was not a dinosaur — what was it?', options: ['A crocodile ancestor', 'A plesiosaur (marine reptile)', 'A large prehistoric fish'], correctIndex: 1 },
+    { question: 'How big was Liopleurodon really, compared to popular exaggerations?', options: ['About 25 metres long — as depicted', 'About 6 metres — far smaller than the claimed 25 metres', 'About 15 metres long'], correctIndex: 1 },
+    { question: 'What does Liopleurodon\'s name refer to?', options: ['Its enormous size', 'Its sharp teeth', 'Its smooth-sided front teeth'], correctIndex: 2 },
+  ],
+  hadrosaurus: [
+    { question: 'What historic first did Hadrosaurus achieve in 1868?', options: ['First dinosaur skeleton ever found', 'First dinosaur skeleton ever mounted and displayed in a museum', 'First dinosaur to have its DNA extracted'], correctIndex: 1 },
+    { question: 'What did Hadrosaurus primarily eat?', options: ['Fish and small animals', 'Insects and grubs', 'Tough vegetation including magnolia leaves'], correctIndex: 2 },
+    { question: 'How did Hadrosaurus reach high vegetation?', options: ['By stretching a very long neck', 'By rearing up on its massive hind legs', 'By climbing into trees'], correctIndex: 1 },
+  ],
+  gallimimus: [
+    { question: 'What does "Gallimimus" mean?', options: ['Swift lizard', 'Chicken mimic', 'Desert runner'], correctIndex: 1 },
+    { question: 'How fast could Gallimimus run?', options: ['About 20 km/h', 'Up to 68 km/h — one of the fastest dinosaurs', 'About 40 km/h'], correctIndex: 1 },
+    { question: 'In which famous film franchise was Gallimimus shown running in a herd?', options: ['Godzilla', 'The Land Before Time', 'Jurassic Park'], correctIndex: 2 },
+  ],
+  troodon: [
+    { question: 'What made Troodon unique among non-avian dinosaurs in terms of intelligence?', options: ['It was the only dinosaur known to use tools', 'It had the largest brain-to-body ratio of any known non-avian dinosaur', 'It had the most teeth of any dinosaur'], correctIndex: 1 },
+    { question: 'What does "Troodon" mean?', options: ['Night hunter', 'Fast runner', 'Wounding tooth'], correctIndex: 2 },
+    { question: 'Why did Troodon have especially large reflective eyes?', options: ['To appear more threatening to rivals', 'Adapted for nocturnal or twilight hunting', 'To attract mates with their appearance'], correctIndex: 1 },
+  ],
+  torosaurus: [
+    { question: 'What was remarkable about the Torosaurus skull?', options: ['The smallest skull relative to body size of any ceratopsian', 'It constituted nearly a third of its total body length', 'It weighed more than the rest of its body'], correctIndex: 1 },
+    { question: 'How is Torosaurus related to Triceratops?', options: ['Torosaurus was the direct ancestor of Triceratops', 'They are closely related and lived at the same time and place', 'They are unrelated despite similar appearances'], correctIndex: 1 },
+    { question: 'What was the colorful frill of Torosaurus likely used for?', options: ['Protection against rain', 'Thermoregulation only', 'Behavioral displays toward rivals'], correctIndex: 2 },
+  ],
+  stegoceras: [
+    { question: 'How did male Stegoceras compete for dominance?', options: ['Using tail spikes to fight', 'Using their domed skulls as battering rams in head-to-head contests', 'Wrestling with their front legs'], correctIndex: 1 },
+    { question: 'Where have Stegoceras fossils been found?', options: ['Africa and Europe', 'Asia only', 'Alberta, Saskatchewan, and New Mexico'], correctIndex: 2 },
+    { question: 'How many Stegoceras specimens are known?', options: ['Only 3', '41 different specimens', 'Over 200'], correctIndex: 1 },
+  ],
+  pentaceratops: [
+    { question: 'What does "Pentaceratops" mean?', options: ['Four-horned face', 'Five-horned face', 'Many-horned lizard'], correctIndex: 1 },
+    { question: 'What record does the Pentaceratops skull hold?', options: ['Most teeth of any ceratopsian', 'One of the largest skulls of any known land animal', 'The longest horns of any ceratopsian'], correctIndex: 1 },
+    { question: 'In which areas have Pentaceratops fossils been discovered?', options: ['Montana and Alberta', 'New Mexico, Colorado, and Mexico', 'Asia and Europe'], correctIndex: 1 },
+  ],
+  centrosaurus: [
+    { question: 'What do the famous Centrosaurus bone beds reveal about its behavior?', options: ['It was a solitary ambush predator', 'It lived in massive migratory herds', 'It buried its young like crocodilians'], correctIndex: 1 },
+    { question: 'What dramatic event do some Centrosaurus bone beds preserve?', options: ['A volcanic eruption killing many at once', 'Herds that drowned while crossing flooded rivers during migration', 'A fight between rival herds'], correctIndex: 1 },
+    { question: 'How many individual Centrosaurus specimens have paleontologists found?', options: ['Just 3 or 4', '46 different specimens', 'Over 500'], correctIndex: 1 },
+  ],
+  dracorex: [
+    { question: 'Which fictional world does the Dracorex species name honor?', options: ['Lord of the Rings', 'The Chronicles of Narnia', 'Harry Potter\'s Hogwarts school'], correctIndex: 2 },
+    { question: 'What controversial theory exists about Dracorex?', options: ['It may have been venomous', 'Some researchers think it was just a juvenile Pachycephalosaurus, not its own species', 'It may have been aquatic'], correctIndex: 1 },
+    { question: 'What does "Dracorex" mean?', options: ['Dragon king', 'Ancient lizard', 'Horned monster'], correctIndex: 0 },
+  ],
+  sauroposeidon: [
+    { question: 'What potential record does Sauroposeidon hold?', options: ['The longest dinosaur ever', 'The heaviest dinosaur ever', 'Potentially the tallest dinosaur ever — its head could reach 15 metres high'], correctIndex: 2 },
+    { question: 'When did Sauroposeidon live?', options: ['In the Late Cretaceous with T. rex', 'In the Early Cretaceous, about 125 million years ago', 'In the Jurassic period'], correctIndex: 1 },
+    { question: 'In which US states have Sauroposeidon fossils been found?', options: ['Montana, Wyoming, and Colorado', 'California, Nevada, and Utah', 'Texas, Wyoming, and Oklahoma'], correctIndex: 2 },
+  ],
+  tenontosaurus: [
+    { question: 'Which famous predator frequently hunted Tenontosaurus?', options: ['Tyrannosaurus rex', 'Allosaurus', 'Pack-hunting Deinonychus'], correctIndex: 2 },
+    { question: 'What did Tenontosaurus use for defense against raptors?', options: ['A bony tail club', 'A massive, stiffened tail', 'Thick body armor'], correctIndex: 1 },
+    { question: 'How many Tenontosaurus specimens are known?', options: ['About 10', '77 different specimens', 'Over 200'], correctIndex: 1 },
+  ],
+  ornithomimus: [
+    { question: 'What does "Ornithomimus" mean?', options: ['Fast runner', 'Bird mimic', 'Desert sprinter'], correctIndex: 1 },
+    { question: 'What kind of environment did Ornithomimus prefer?', options: ['Dense forests', 'Open desert plains', 'Wetlands, sprinting with speed and agility'], correctIndex: 2 },
+    { question: 'What was Ornithomimus\'s diet?', options: ['Primarily meat', 'Plants — it was herbivorous', 'Fish from rivers'], correctIndex: 1 },
+  ],
+  suchosaurus: [
+    { question: 'How did Suchosaurus hunt its prey?', options: ['By running down prey on land', 'By standing thigh-deep in murky rivers to catch large fish', 'By ambushing from trees'], correctIndex: 1 },
+    { question: 'To which famous dinosaur was Suchosaurus closely related?', options: ['Allosaurus', 'Tyrannosaurus', 'Baryonyx'], correctIndex: 2 },
+    { question: 'In which countries have Suchosaurus fossils been found?', options: ['North America only', 'Africa and South America', 'England, Portugal, and Spain'], correctIndex: 2 },
+  ],
+  abelisaurus: [
+    { question: 'What family of dinosaurs takes its name from Abelisaurus?', options: ['The Tyrannosaurs', 'The Spinosaurids', 'The Abelisauridae'], correctIndex: 2 },
+    { question: 'What role did the Abelisauridae family play on the southern continents?', options: ['They were the giant herbivores', 'They filled the top predator role that T. rex filled in the north', 'They were aquatic predators'], correctIndex: 1 },
+    { question: 'Where was Abelisaurus discovered?', options: ['Mongolia', 'North Africa', 'The Anacleto Formation of Argentina'], correctIndex: 2 },
+  ],
 };
