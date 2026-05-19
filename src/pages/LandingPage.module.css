@@ -2,10 +2,15 @@
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background: #050a05;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Rich prehistoric jungle gradient — always visible instantly, image loads on top */
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 100%, rgba(8, 28, 4, 1)   0%, transparent 65%),
+    radial-gradient(ellipse  70% 90% at 15% 55%,  rgba(12, 40, 6, 0.8) 0%, transparent 55%),
+    radial-gradient(ellipse  55% 65% at 85% 25%,  rgba(6,  18, 3, 0.7) 0%, transparent 50%),
+    linear-gradient(180deg,  #020804 0%, #071009 35%, #04090405 70%, #020804 100%);
 }
 
 /* ── Background image ── */
@@ -15,33 +20,29 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 25%;
-  opacity: 0;
-  transition: opacity 1.8s ease;
-  filter: saturate(0.7) brightness(0.65);
+  object-position: center 30%;
+  /* Image appears the moment the browser finishes downloading it.
+     The gradient above is the fallback while it loads. */
+  filter: saturate(0.8) brightness(0.62);
   transform: scale(1.04);
 }
 
-.bgImgLoaded {
-  opacity: 1;
-}
-
-/* ── Gradient overlay ── */
+/* ── Gradient overlay (darkens edges, ensures text contrast) ── */
 .overlay {
   position: absolute;
   inset: 0;
   background:
     linear-gradient(to bottom,
-      rgba(5, 10, 5, 0.18) 0%,
-      rgba(5, 10, 5, 0.05) 30%,
-      rgba(5, 10, 5, 0.35) 65%,
-      rgba(5, 10, 5, 0.88) 100%
+      rgba(2, 8, 4, 0.25) 0%,
+      rgba(2, 8, 4, 0.05) 30%,
+      rgba(2, 8, 4, 0.40) 65%,
+      rgba(2, 8, 4, 0.92) 100%
     ),
     linear-gradient(to right,
-      rgba(5, 10, 5, 0.3) 0%,
+      rgba(2, 8, 4, 0.35) 0%,
       transparent 40%,
       transparent 60%,
-      rgba(5, 10, 5, 0.3) 100%
+      rgba(2, 8, 4, 0.35) 100%
     );
 }
 
@@ -170,7 +171,6 @@
   color: rgba(255, 255, 255, 0.55);
 }
 
-/* Underline that animates in on hover */
 .navUnderline {
   position: absolute;
   bottom: 10px;

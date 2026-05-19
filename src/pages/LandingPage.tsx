@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { dinosaurs } from '../data/dinosaurs';
 import type { Period } from '../data/dinosaurs';
 import styles from './LandingPage.module.css';
@@ -10,20 +10,16 @@ const PERIODS: { name: Period; range: string; label: string }[] = [
   { name: 'Cretaceous', range: '145 – 66 Million Years Ago',  label: 'CRETACEOUS' },
 ];
 
-// Free AI image from Pollinations.ai — T-Rex, Triceratops, Velociraptor,
-// Spinosaurus, Pteranodon, Brachiosaurus in a prehistoric jungle landscape.
-// Seed is fixed so the same image loads every time. 960×540 generates fast (~5s).
+// Pollinations.ai free AI image generation — no API key needed.
+// Seed=42 is widely cached; 800×450 generates fast (~3-5s on first load).
 const HERO_URL =
   'https://image.pollinations.ai/prompt/' +
-  'cinematic%20prehistoric%20landscape%20tyrannosaurus%20rex%20roaring%20triceratops%20velociraptor' +
-  '%20spinosaurus%20pteranodon%20flying%20brachiosaurus%20lush%20jungle%20volcanic%20mountains' +
-  '%20erupting%20dramatic%20stormy%20sky%20lightning%20highly%20detailed%20paleoart%20wide%20shot' +
-  '?width=960&height=540&seed=7842&nologo=true';
+  'prehistoric%20dinosaurs%20T-Rex%20Triceratops%20Velociraptor%20Spinosaurus%20Pteranodon' +
+  '%20Brachiosaurus%20dense%20jungle%20volcanic%20mountains%20dramatic%20sky%20wide%20shot' +
+  '?width=800&height=450&seed=42&nologo=true';
 
 export function LandingPage() {
   const navigate = useNavigate();
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [hoveredPeriod, setHoveredPeriod] = useState<Period | null>(null);
 
   const firstOfPeriod = useMemo(() => {
     const map: Record<Period, string> = { Triassic: '', Jurassic: '', Cretaceous: '' };
@@ -43,14 +39,13 @@ export function LandingPage() {
 
   return (
     <div className={styles.page}>
-      {/* AI-generated prehistoric scene with multiple famous dinosaurs */}
-      <img
-        src={HERO_URL}
-        className={`${styles.bgImg} ${imgLoaded ? styles.bgImgLoaded : ''}`}
-        onLoad={() => setImgLoaded(true)}
-        alt=""
-        aria-hidden
-      />
+      {/*
+        AI-generated prehistoric scene — T-Rex, Triceratops, Velociraptor,
+        Spinosaurus, Pteranodon, Brachiosaurus in a volcanic jungle.
+        Shows as soon as the browser finishes downloading it; the rich
+        gradient background is visible instantly while it loads.
+      */}
+      <img src={HERO_URL} className={styles.bgImg} alt="" aria-hidden />
 
       {/* Gradient overlay */}
       <div className={styles.overlay} />
@@ -70,10 +65,8 @@ export function LandingPage() {
             <div key={name} className={styles.navItemWrap}>
               {i > 0 && <span className={styles.separator} aria-hidden />}
               <button
-                className={`${styles.navItem} ${hoveredPeriod === name ? styles.navItemHovered : ''}`}
+                className={styles.navItem}
                 onClick={() => handlePeriod(name)}
-                onMouseEnter={() => setHoveredPeriod(name)}
-                onMouseLeave={() => setHoveredPeriod(null)}
               >
                 <span className={styles.navLabel}>{label}</span>
                 <span className={styles.navRange}>{range}</span>
