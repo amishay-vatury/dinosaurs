@@ -25,14 +25,30 @@ function buildWordPositions(text: string): WordPosition[] {
   let match: RegExpExecArray | null;
   let index = 0;
   while ((match = regex.exec(text)) !== null) {
-    positions.push({
-      word: match[0],
-      start: match.index,
-      end: match.index + match[0].length,
-      index: index++,
-    });
+    positions.push({ word: match[0], start: match.index, end: match.index + match[0].length, index: index++ });
   }
   return positions;
+}
+
+function pickVoice(): SpeechSynthesisVoice | null {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  // Priority list — child-like, young, or natural-sounding voices first
+  const priority = [
+    'samantha', 'karen', 'moira', 'tessa', 'victoria', 'fiona',
+    'zira', 'aria', 'jenny', 'sonia', 'libby', 'susan',
+    'google uk english female', 'google us english',
+    'female', 'girl',
+  ];
+
+  for (const keyword of priority) {
+    const found = voices.find(v => v.name.toLowerCase().includes(keyword));
+    if (found) return found;
+  }
+
+  // Prefer any en-US / en-GB voice over others
+  return voices.find(v => v.lang.startsWith('en')) ?? voices[0];
 }
 
 export function useSpeech(): UseSpeechReturn {
@@ -43,12 +59,15 @@ export function useSpeech(): UseSpeechReturn {
   const [wordPositions, setWordPositions] = useState<WordPosition[]>([]);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Clean up on unmount
   useEffect(() => {
+    if (!supported) return;
+    // Pre-load voices (Chrome needs this trigger)
+    window.speechSynthesis.getVoices();
+    const handler = () => window.speechSynthesis.getVoices();
+    window.speechSynthesis.addEventListener('voiceschanged', handler);
     return () => {
-      if (supported) {
-        window.speechSynthesis.cancel();
-      }
+      window.speechSynthesis.removeEventListener('voiceschanged', handler);
+      window.speechSynthesis.cancel();
     };
   }, [supported]);
 
@@ -60,60 +79,43 @@ export function useSpeech(): UseSpeechReturn {
     setCurrentWordIndex(-1);
   }, [supported]);
 
-  const speak = useCallback(
-    (text: string) => {
-      if (!supported) return;
-      window.speechSynthesis.cancel();
-      setCurrentWordIndex(-1);
+  const speak = useCallback((text: string) => {
+    if (!supported) return;
+    window.speechSynthesis.cancel();
+    setCurrentWordIndex(-1);
 
-      const positions = buildWordPositions(text);
-      setWordPositions(positions);
+    const positions = buildWordPositions(text);
+    setWordPositions(positions);
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
+    const utterance = new SpeechSynthesisUtterance(text);
 
-      utterance.onboundary = (event: SpeechSynthesisEvent) => {
-        if (event.name === 'word') {
-          // Find the word whose start position matches the event charIndex
-          const idx = positions.findIndex(
-            (wp) => wp.start === event.charIndex
-          );
-          if (idx !== -1) {
-            setCurrentWordIndex(idx);
-          } else {
-            // Fallback: find the word that contains charIndex
-            const fallback = positions.findIndex(
-              (wp) => event.charIndex >= wp.start && event.charIndex < wp.end
-            );
-            if (fallback !== -1) setCurrentWordIndex(fallback);
-          }
+    // Child-like voice settings: high pitch, light pace
+    utterance.pitch = 1.55;
+    utterance.rate = 0.87;
+    utterance.volume = 1.0;
+
+    const voice = pickVoice();
+    if (voice) utterance.voice = voice;
+
+    utterance.onboundary = (event: SpeechSynthesisEvent) => {
+      if (event.name === 'word') {
+        const idx = positions.findIndex(wp => wp.start === event.charIndex);
+        if (idx !== -1) {
+          setCurrentWordIndex(idx);
+        } else {
+          const fallback = positions.findIndex(wp => event.charIndex >= wp.start && event.charIndex < wp.end);
+          if (fallback !== -1) setCurrentWordIndex(fallback);
         }
-      };
+      }
+    };
 
-      utterance.onstart = () => {
-        setIsPlaying(true);
-        setIsPaused(false);
-      };
+    utterance.onstart = () => { setIsPlaying(true); setIsPaused(false); };
+    utterance.onend = () => { setIsPlaying(false); setIsPaused(false); setCurrentWordIndex(-1); };
+    utterance.onerror = () => { setIsPlaying(false); setIsPaused(false); setCurrentWordIndex(-1); };
 
-      utterance.onend = () => {
-        setIsPlaying(false);
-        setIsPaused(false);
-        setCurrentWordIndex(-1);
-      };
-
-      utterance.onerror = () => {
-        setIsPlaying(false);
-        setIsPaused(false);
-        setCurrentWordIndex(-1);
-      };
-
-      utteranceRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
-    },
-    [supported]
-  );
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  }, [supported]);
 
   const pause = useCallback(() => {
     if (!supported || !isPlaying) return;
@@ -129,15 +131,5 @@ export function useSpeech(): UseSpeechReturn {
     setIsPlaying(true);
   }, [supported, isPaused]);
 
-  return {
-    isPlaying,
-    isPaused,
-    currentWordIndex,
-    wordPositions,
-    speak,
-    pause,
-    resume,
-    stop,
-    supported,
-  };
+  return { isPlaying, isPaused, currentWordIndex, wordPositions, speak, pause, resume, stop, supported };
 }

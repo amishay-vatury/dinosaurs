@@ -1,6 +1,7 @@
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { useMemo, useEffect, useState } from 'react';
 import { dinosaurs, periodColors } from '../data/dinosaurs';
+import type { Period } from '../data/dinosaurs';
 import { quizData } from '../data/quizData';
 import { useSpeech } from '../hooks/useSpeech';
 import { WordHighlighter } from '../components/WordHighlighter';
@@ -9,98 +10,99 @@ import { DinoImage } from '../components/DinoImage';
 import styles from './DinosaurPage.module.css';
 
 const DIET_EMOJI: Record<string, string> = {
-  Carnivore: '🥩',
-  Herbivore: '🌿',
-  Omnivore: '🌾',
-  Piscivore: '🐟',
+  Carnivore: '🥩', Herbivore: '🌿', Omnivore: '🌾', Piscivore: '🐟',
 };
 
 export function DinosaurPage() {
   const { id } = useParams<{ id: string }>();
-  const dinosaur = useMemo(() => dinosaurs.find((d) => d.id === id), [id]);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const periodParam = searchParams.get('period') as Period | null;
+  const dinosaur = useMemo(() => dinosaurs.find(d => d.id === id), [id]);
   const speech = useSpeech();
-  const [activeFact, setActiveFact] = useState<number | null>(null);
   const [speakingTarget, setSpeakingTarget] = useState<'desc' | number | null>(null);
+
+  // Period-filtered, alphabetically sorted list for prev/next navigation
+  const periodList = useMemo(() => {
+    const list = periodParam
+      ? dinosaurs.filter(d => d.period === periodParam)
+      : dinosaurs;
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
+  }, [periodParam]);
+
+  const currentIdx = useMemo(
+    () => periodList.findIndex(d => d.id === id),
+    [periodList, id]
+  );
+
+  const prev = currentIdx > 0 ? periodList[currentIdx - 1] : null;
+  const next = currentIdx < periodList.length - 1 ? periodList[currentIdx + 1] : null;
+
+  const navTo = (dinoId: string) =>
+    `/dinosaur/${dinoId}${periodParam ? `?period=${periodParam}` : ''}`;
 
   useEffect(() => {
     speech.stop();
-    setActiveFact(null);
     setSpeakingTarget(null);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0 });
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!dinosaur) return <Navigate to="/" replace />;
 
   const questions = quizData[dinosaur.id] ?? [];
   const periodColor = periodColors[dinosaur.period];
-  const currentIdx = dinosaurs.findIndex((d) => d.id === id);
-  const prev = currentIdx > 0 ? dinosaurs[currentIdx - 1] : null;
-  const next = currentIdx < dinosaurs.length - 1 ? dinosaurs[currentIdx + 1] : null;
 
   const handleDescPlay = () => {
     if (speech.isPaused && speakingTarget === 'desc') {
       speech.resume();
     } else {
       setSpeakingTarget('desc');
-      setActiveFact(null);
       speech.speak(dinosaur.description);
     }
   };
 
   const handleFactPlay = (i: number, text: string) => {
     if (speakingTarget === i && speech.isPlaying) {
-      speech.stop();
-      setSpeakingTarget(null);
-      setActiveFact(null);
-      return;
+      speech.stop(); setSpeakingTarget(null); return;
     }
     setSpeakingTarget(i);
-    setActiveFact(i);
     speech.speak(text);
   };
 
-  const handleStop = () => {
-    speech.stop();
-    setSpeakingTarget(null);
-    setActiveFact(null);
-  };
+  const handleStop = () => { speech.stop(); setSpeakingTarget(null); };
 
-  const isDescPlaying = speakingTarget === 'desc' && (speech.isPlaying || speech.isPaused);
-  const isDescActive = speakingTarget === 'desc' && (speech.isPlaying || speech.isPaused);
+  const isDescSpeaking = speakingTarget === 'desc' && (speech.isPlaying || speech.isPaused);
 
   return (
     <div className={styles.page}>
-      {/* Top nav */}
-      <nav className={styles.topNav}>
-        <Link to="/" className={styles.backBtn} onClick={handleStop}>
-          ← Back to Dinosaurs Land
+      {/* Top bar */}
+      <header className={styles.topBar}>
+        <Link to="/" className={styles.logoLink} onClick={handleStop}>
+          <span className={styles.logoText}>Dinosaurs Land</span>
         </Link>
-        <div className={styles.arrows}>
-          {prev ? (
-            <Link to={`/dinosaur/${prev.id}`} className={styles.arrow} onClick={handleStop}>
-              ← {prev.name}
-            </Link>
-          ) : <span />}
-          {next ? (
-            <Link to={`/dinosaur/${next.id}`} className={styles.arrow} onClick={handleStop}>
-              {next.name} →
-            </Link>
-          ) : <span />}
-        </div>
-      </nav>
+        {periodParam && (
+          <span className={styles.periodCrumb} style={{ color: periodColor }}>
+            {periodParam}
+          </span>
+        )}
+        <span className={styles.dinoCount}>
+          {currentIdx + 1} / {periodList.length}
+        </span>
+      </header>
 
-      {/* Two-column layout */}
+      {/* Two-column body */}
       <div className={styles.layout}>
-        {/* ── Left: Quiz ── */}
+        {/* ── Quiz sidebar ── */}
         <aside className={styles.quizCol}>
           {questions.length > 0 ? (
             <QuizSection questions={questions} accentColor={periodColor} />
           ) : (
-            <div className={styles.noQuiz}>No quiz available for this dinosaur.</div>
+            <p className={styles.noQuiz}>No quiz for this dinosaur yet.</p>
           )}
         </aside>
 
-        {/* ── Right: Main content ── */}
+        {/* ── Main content ── */}
         <main className={styles.mainCol}>
           {/* Hero image */}
           <div className={styles.imageWrap} style={{ borderBottomColor: periodColor }}>
@@ -111,21 +113,19 @@ export function DinosaurPage() {
               variant="hero"
             />
             <div className={styles.imageOverlay}>
-              <span className={styles.periodPill} style={{ backgroundColor: periodColor }}>
+              <span className={styles.periodPill} style={{ backgroundColor: periodColor + 'cc' }}>
                 {dinosaur.period} · {dinosaur.periodRange}
               </span>
-              <h1 className={styles.dinoName} style={{ color: '#fff' }}>
-                {dinosaur.name}
-              </h1>
+              <h1 className={styles.dinoName}>{dinosaur.name}</h1>
             </div>
           </div>
 
-          {/* Stats */}
+          {/* Stats strip */}
           <div className={styles.statsRow}>
             {[
-              { label: 'Diet', value: `${DIET_EMOJI[dinosaur.diet]} ${dinosaur.diet}` },
-              { label: 'Length', value: `📏 ${dinosaur.length}` },
-              { label: 'Weight', value: `⚖️ ${dinosaur.weight}` },
+              { label: 'Diet',     value: `${DIET_EMOJI[dinosaur.diet]} ${dinosaur.diet}` },
+              { label: 'Length',   value: `📏 ${dinosaur.length}` },
+              { label: 'Weight',   value: `⚖️ ${dinosaur.weight}` },
               { label: 'Found in', value: `📍 ${dinosaur.location}` },
             ].map(({ label, value }) => (
               <div key={label} className={styles.stat}>
@@ -140,89 +140,104 @@ export function DinosaurPage() {
             <div className={styles.sectionHead}>
               <h2 className={styles.sectionTitle}>Description</h2>
             </div>
-            <div className={styles.descBox} style={{ borderColor: periodColor + '33' }}>
+            <div className={styles.descBox} style={{ borderColor: periodColor + '2a' }}>
               <WordHighlighter
                 text={dinosaur.description}
                 wordPositions={speakingTarget === 'desc' ? speech.wordPositions : []}
                 currentWordIndex={speakingTarget === 'desc' ? speech.currentWordIndex : -1}
-                isActive={isDescActive}
+                isActive={isDescSpeaking}
               />
             </div>
-
             {speech.supported && (
               <div className={styles.ttsRow}>
                 <button
                   className={styles.listenBtn}
                   style={{ '--accent': periodColor } as React.CSSProperties}
                   onClick={handleDescPlay}
-                  disabled={isDescPlaying && !speech.isPaused}
+                  disabled={speech.isPlaying && speakingTarget === 'desc'}
                 >
                   {speech.isPlaying && speakingTarget === 'desc' ? (
-                    <>▶ Playing… <SoundBars /></>
+                    <><SoundBars /> Speaking…</>
                   ) : speech.isPaused && speakingTarget === 'desc' ? (
                     '▶ Resume'
-                  ) : (
-                    '▶ Listen'
-                  )}
+                  ) : '▶ Listen'}
                 </button>
                 {speech.isPlaying && speakingTarget === 'desc' && (
-                  <button className={styles.ctrlBtn} onClick={speech.pause}>⏸ Pause</button>
+                  <button className={styles.ctrlBtn} onClick={speech.pause}>⏸</button>
                 )}
                 {(speech.isPlaying || speech.isPaused) && (
-                  <button className={styles.ctrlBtn} onClick={handleStop}>⏹ Stop</button>
+                  <button className={styles.ctrlBtn} onClick={handleStop}>⏹</button>
                 )}
-                {isDescPlaying && (
+                {isDescSpeaking && speech.wordPositions.length > 0 && (
                   <div className={styles.progress}>
-                    <div
-                      className={styles.progressBar}
-                      style={{
-                        backgroundColor: periodColor,
-                        width: speech.wordPositions.length > 0
-                          ? `${((speech.currentWordIndex + 1) / speech.wordPositions.length) * 100}%`
-                          : '0%',
-                      }}
-                    />
+                    <div className={styles.progressFill} style={{
+                      backgroundColor: periodColor,
+                      width: `${((speech.currentWordIndex + 1) / speech.wordPositions.length) * 100}%`,
+                    }} />
                   </div>
                 )}
               </div>
             )}
           </section>
 
-          {/* Fun Facts */}
+          {/* Fun facts */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Fun Facts</h2>
-            <p className={styles.factHint}>Click a fact to hear it read aloud</p>
+            <p className={styles.factHint}>Tap any fact to hear it</p>
             <ul className={styles.facts}>
               {dinosaur.funFacts.map((fact, i) => {
-                const isThisPlaying = activeFact === i && speech.isPlaying;
+                const active = speakingTarget === i && speech.isPlaying;
                 return (
                   <li
                     key={i}
-                    className={`${styles.fact} ${activeFact === i ? styles.factActive : ''}`}
+                    className={`${styles.fact} ${active ? styles.factActive : ''}`}
                     style={{ borderLeftColor: periodColor }}
                     onClick={() => handleFactPlay(i, fact)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && handleFactPlay(i, fact)}
-                    aria-label={`Fact ${i + 1}: ${fact}. Click to hear.`}
+                    onKeyDown={e => e.key === 'Enter' && handleFactPlay(i, fact)}
                   >
                     <span className={styles.factNum} style={{ color: periodColor }}>
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     <span className={styles.factText}>{fact}</span>
-                    <button
-                      className={`${styles.factPlayBtn} ${isThisPlaying ? styles.factPlayBtnActive : ''}`}
-                      style={{ color: periodColor }}
-                      aria-label={isThisPlaying ? 'Stop' : 'Play'}
-                      onClick={(e) => { e.stopPropagation(); handleFactPlay(i, fact); }}
-                    >
-                      {isThisPlaying ? '⏹' : '🔊'}
-                    </button>
+                    <span className={styles.factIcon}>{active ? '⏹' : '🔊'}</span>
                   </li>
                 );
               })}
             </ul>
           </section>
+
+          {/* ── Bottom prev / next navigation ── */}
+          <nav className={styles.bottomNav}>
+            {prev ? (
+              <button
+                className={styles.bottomNavItem}
+                onClick={() => { handleStop(); navigate(navTo(prev.id)); }}
+              >
+                <span className={styles.bottomNavDir}>← Previous</span>
+                <span className={styles.bottomNavName}>{prev.name}</span>
+              </button>
+            ) : (
+              <span />
+            )}
+
+            <Link to="/" className={styles.bottomNavHome} onClick={handleStop}>
+              <span className={styles.bottomNavHomeLabel}>Dinosaurs Land</span>
+            </Link>
+
+            {next ? (
+              <button
+                className={styles.bottomNavItem + ' ' + styles.bottomNavItemRight}
+                onClick={() => { handleStop(); navigate(navTo(next.id)); }}
+              >
+                <span className={styles.bottomNavDir}>Next →</span>
+                <span className={styles.bottomNavName}>{next.name}</span>
+              </button>
+            ) : (
+              <span />
+            )}
+          </nav>
         </main>
       </div>
     </div>
@@ -231,7 +246,7 @@ export function DinosaurPage() {
 
 function SoundBars() {
   return (
-    <span className={styles.soundBars}>
+    <span className={styles.bars}>
       <span /><span /><span /><span />
     </span>
   );

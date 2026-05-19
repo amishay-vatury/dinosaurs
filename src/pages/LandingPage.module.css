@@ -1,0 +1,235 @@
+.page {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #050a05;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Background image ── */
+.bgImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  opacity: 0;
+  transition: opacity 1.8s ease;
+  filter: saturate(0.7) brightness(0.65);
+  transform: scale(1.04);
+}
+
+.bgImgLoaded {
+  opacity: 1;
+}
+
+/* ── Gradient overlay ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom,
+      rgba(5, 10, 5, 0.18) 0%,
+      rgba(5, 10, 5, 0.05) 30%,
+      rgba(5, 10, 5, 0.35) 65%,
+      rgba(5, 10, 5, 0.88) 100%
+    ),
+    linear-gradient(to right,
+      rgba(5, 10, 5, 0.3) 0%,
+      transparent 40%,
+      transparent 60%,
+      rgba(5, 10, 5, 0.3) 100%
+    );
+}
+
+/* ── Content ── */
+.content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 40px 24px;
+  gap: 0;
+}
+
+/* ── Brand / title ── */
+.brand {
+  text-align: center;
+  margin-bottom: auto;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeUp 1.2s ease both;
+}
+
+.eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+}
+
+.title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(3.8rem, 10vw, 8rem);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.96);
+  margin: 0;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+}
+
+.tagline {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.8rem, 1.5vw, 0.97rem);
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.42);
+  margin: 0;
+  max-width: 420px;
+  text-align: center;
+}
+
+/* ── Period navigation ── */
+.nav {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  margin-bottom: 64px;
+  animation: fadeUp 1.2s 0.3s ease both;
+}
+
+.navItemWrap {
+  display: flex;
+  align-items: center;
+}
+
+.separator {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  display: block;
+}
+
+.navItem {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 18px 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  transition: transform 0.35s ease;
+}
+
+.navItem:hover {
+  transform: translateY(-3px);
+}
+
+.navLabel {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1rem, 2.2vw, 1.45rem);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.75);
+  display: block;
+  transition: color 0.35s ease;
+}
+
+.navItem:hover .navLabel {
+  color: rgba(255, 255, 255, 1);
+}
+
+.navRange {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.3);
+  display: block;
+  transition: color 0.35s ease;
+  white-space: nowrap;
+}
+
+.navItem:hover .navRange {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Underline that animates in on hover */
+.navUnderline {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.65);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+}
+
+.navItem:hover .navUnderline {
+  width: 40px;
+}
+
+/* ── Scroll hint ── */
+.scrollHint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: fadeUp 1.2s 0.6s ease both;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.3));
+  display: block;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+.scrollText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .nav { flex-direction: column; align-items: center; gap: 0; }
+  .separator { width: 40px; height: 1px; }
+  .navItem { padding: 14px 32px; }
+}
