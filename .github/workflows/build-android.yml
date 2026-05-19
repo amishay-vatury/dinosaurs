@@ -53,10 +53,37 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
+        id: gradle_build
+        continue-on-error: true
+        run: |
+          cd android && ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee /tmp/gradle.log
+          exit ${PIPESTATUS[0]}
         env:
           GRADLE_OPTS: "-Xmx4g -Dorg.gradle.daemon=false"
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
+
+      - name: Publish Gradle error log to ci-logs branch
+        if: steps.gradle_build.outcome == 'failure'
+        run: |
+          git config user.email "ci@github-actions"
+          git config user.name "GitHub Actions"
+          git fetch origin ci-logs 2>/dev/null || true
+          git worktree add /tmp/ci-logs ci-logs 2>/dev/null || \
+            (git checkout --orphan ci-logs-tmp && git rm -rf . --quiet && \
+             git worktree add /tmp/ci-logs ci-logs 2>/dev/null) || \
+            (git worktree add --detach /tmp/ci-logs && \
+             cd /tmp/ci-logs && git checkout --orphan ci-logs && git rm -rf . 2>/dev/null || true)
+          tail -500 /tmp/gradle.log > /tmp/ci-logs/gradle-error.log
+          cd /tmp/ci-logs
+          git add gradle-error.log
+          git commit -m "CI: Gradle error log $(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
+          git push origin ci-logs --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fail if APK was not produced
+        if: steps.gradle_build.outcome == 'failure'
+        run: exit 1
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -72,5 +99,5 @@ jobs:
           name: gradle-logs
           path: |
             android/app/build/reports/
-            ~/.gradle/daemon/
+            /tmp/gradle.log
           retention-days: 7
