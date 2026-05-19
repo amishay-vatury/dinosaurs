@@ -25,11 +25,13 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Install Android SDK platform 34
+      - name: Install Android SDK platforms
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "platforms;android-34" \
+            "platforms;android-36" \
             "build-tools;34.0.0" \
+            "build-tools;36.0.0" \
             "platform-tools"
 
       - name: Create local.properties
@@ -65,19 +67,16 @@ jobs:
       - name: Publish Gradle error log to ci-logs branch
         if: steps.gradle_build.outcome == 'failure'
         run: |
+          mkdir /tmp/ci-logs-work
+          tail -500 /tmp/gradle.log > /tmp/ci-logs-work/gradle-error.log
+          cd /tmp/ci-logs-work
+          git init
           git config user.email "ci@github-actions"
           git config user.name "GitHub Actions"
-          git fetch origin ci-logs 2>/dev/null || true
-          git worktree add /tmp/ci-logs ci-logs 2>/dev/null || \
-            (git checkout --orphan ci-logs-tmp && git rm -rf . --quiet && \
-             git worktree add /tmp/ci-logs ci-logs 2>/dev/null) || \
-            (git worktree add --detach /tmp/ci-logs && \
-             cd /tmp/ci-logs && git checkout --orphan ci-logs && git rm -rf . 2>/dev/null || true)
-          tail -500 /tmp/gradle.log > /tmp/ci-logs/gradle-error.log
-          cd /tmp/ci-logs
           git add gradle-error.log
-          git commit -m "CI: Gradle error log $(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
-          git push origin ci-logs --force
+          git commit -m "CI: Gradle error log"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin HEAD:refs/heads/ci-logs --force
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
