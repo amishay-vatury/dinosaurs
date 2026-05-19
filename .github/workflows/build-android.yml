@@ -25,17 +25,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install dependencies
         run: npm ci
 
       - name: Build web app
         run: npm run build
 
-      - name: Sync web assets into Android project
-        run: npx cap sync android
+      - name: Copy web assets into Android project
+        run: |
+          mkdir -p android/app/src/main/assets/public
+          cp -r dist/. android/app/src/main/assets/public/
+          cp capacitor.config.json android/app/src/main/assets/capacitor.config.json
 
       - name: Make Gradle executable
         run: chmod +x android/gradlew
