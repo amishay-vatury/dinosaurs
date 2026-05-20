@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { useMemo, useEffect, useState } from 'react';
 import { dinosaurs, periodColors } from '../data/dinosaurs';
-import type { Period } from '../data/dinosaurs';
+import type { Period, Dinosaur } from '../data/dinosaurs';
 import { quizData } from '../data/quizData';
 import { useSpeech } from '../hooks/useSpeech';
 import { WordHighlighter } from '../components/WordHighlighter';
@@ -12,6 +12,20 @@ import styles from './DinosaurPage.module.css';
 const DIET_EMOJI: Record<string, string> = {
   Carnivore: '🥩', Herbivore: '🌿', Omnivore: '🌾', Piscivore: '🐟',
 };
+
+const DIET_SPOKEN: Record<string, string> = {
+  Carnivore: 'meat-eating', Herbivore: 'plant-eating',
+  Omnivore: 'omnivore', Piscivore: 'fish-eating',
+};
+
+function statsNarration(d: Dinosaur): string {
+  const loc = d.location.replace(/\s*\([^)]*\)/g, '').replace(/\s{2,}/g, ' ').trim();
+  const len = d.length.replace(/~/g, 'about ').replace(/\bm\b/g, 'meters');
+  const wt  = d.weight.replace(/~/g, 'about ').replace(/\bkg\b/g, 'kilograms');
+  return `${d.name} was a ${DIET_SPOKEN[d.diet] ?? d.diet.toLowerCase()} dinosaur. ` +
+    `It was ${len} long and weighed ${wt}. ` +
+    `It was found in ${loc}.`;
+}
 
 export function DinosaurPage() {
   const { id } = useParams<{ id: string }>();
@@ -49,9 +63,11 @@ export function DinosaurPage() {
     if (!dinosaur) return;
 
     const alreadyPlayed = sessionStorage.getItem('dinoInstructionsPlayed');
+    const stats = statsNarration(dinosaur);
     const message = alreadyPlayed
-      ? `Meet ${dinosaur.name}!`
-      : `Meet ${dinosaur.name}! Press the dinosaur play button to hear all about this dinosaur, ` +
+      ? `Meet ${dinosaur.name}! ${stats}`
+      : `Meet ${dinosaur.name}! ${stats} ` +
+        `Press the play button to hear all about this dinosaur, ` +
         `and tap any fun fact to hear it out loud. ` +
         `Use the arrows at the bottom to explore more dinosaurs!`;
 
@@ -110,7 +126,7 @@ export function DinosaurPage() {
         {/* Quiz sidebar */}
         <aside className={styles.quizCol}>
           {questions.length > 0 ? (
-            <QuizSection key={dinosaur.id} questions={questions} accentColor={periodColor} />
+            <QuizSection key={dinosaur.id} questions={questions} accentColor={periodColor} speech={speech} />
           ) : (
             <p className={styles.noQuiz}>No quiz for this dinosaur yet.</p>
           )}

@@ -66,6 +66,16 @@
   color: #c8d8b8;
   margin: 0;
   line-height: 1.5;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s;
+}
+.questionText:hover { opacity: 0.78; }
+
+.questionSpeakIcon {
+  font-size: 0.72rem;
+  opacity: 0.45;
+  margin-left: 2px;
 }
 
 .qNum {

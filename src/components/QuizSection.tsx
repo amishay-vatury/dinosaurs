@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { QuizQuestion } from '../data/quizData';
+import type { UseSpeechReturn } from '../hooks/useSpeech';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import styles from './QuizSection.module.css';
 
@@ -13,16 +14,26 @@ interface QuestionState {
 interface Props {
   questions: QuizQuestion[];
   accentColor: string;
+  speech: UseSpeechReturn;
 }
 
-export function QuizSection({ questions, accentColor }: Props) {
+export function QuizSection({ questions, accentColor, speech }: Props) {
   const [states, setStates] = useState<QuestionState[]>(
     questions.map(() => ({ selected: null, status: 'idle' }))
   );
   const { playCorrect, playWrong } = useSoundEffects();
 
+  const speakQuestion = (qi: number) => {
+    const q = questions[qi];
+    const optsList = q.options
+      .map((opt, i) => `${['A', 'B', 'C'][i]}: ${opt}`)
+      .join('. ');
+    speech.speak(`Question ${qi + 1}: ${q.question}. Options: ${optsList}`);
+  };
+
   const select = (qi: number, oi: number) => {
     if (states[qi].status === 'correct') return;
+    speech.speak(questions[qi].options[oi]);
     setStates((prev) =>
       prev.map((s, i) => (i === qi ? { ...s, selected: oi, status: 'idle' } : s))
     );
@@ -73,11 +84,19 @@ export function QuizSection({ questions, accentColor }: Props) {
               key={qi}
               className={`${styles.question} ${isDone ? styles.questionDone : ''}`}
             >
-              <p className={styles.questionText}>
+              <p
+                className={styles.questionText}
+                onClick={() => speakQuestion(qi)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && speakQuestion(qi)}
+                aria-label={`Tap to hear question ${qi + 1}`}
+              >
                 <span className={styles.qNum} style={{ color: accentColor }}>
                   Q{qi + 1}.
                 </span>{' '}
                 {q.question}
+                <span className={styles.questionSpeakIcon}> 🔊</span>
               </p>
 
               <div className={styles.options}>
