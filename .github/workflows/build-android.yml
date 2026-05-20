@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -66,6 +69,7 @@ jobs:
 
       - name: Publish Gradle error log to ci-logs branch
         if: steps.gradle_build.outcome == 'failure'
+        continue-on-error: true
         run: |
           mkdir /tmp/ci-logs-work
           tail -500 /tmp/gradle.log > /tmp/ci-logs-work/gradle-error.log
@@ -79,6 +83,10 @@ jobs:
           git push origin HEAD:refs/heads/ci-logs --force
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print last 100 lines of Gradle log
+        if: steps.gradle_build.outcome == 'failure'
+        run: tail -100 /tmp/gradle.log
 
       - name: Fail if APK was not produced
         if: steps.gradle_build.outcome == 'failure'
