@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 
 export interface WordPosition {
   word: string;
@@ -19,6 +20,21 @@ export interface UseSpeechReturn {
   supported: boolean;
 }
 
+// ── Native Capacitor TTS (Android / iOS) ─────────────────────────────────────
+
+interface NativeTtsPlugin {
+  speak(options: { text: string; rate: number }): Promise<void>;
+  stop(): Promise<void>;
+  addListener(event: 'ttsDone', listener: () => void): Promise<{ remove(): void }>;
+}
+
+const isNative = Capacitor.isNativePlatform();
+const NativeTts: NativeTtsPlugin | null = isNative
+  ? registerPlugin<NativeTtsPlugin>('Tts')
+  : null;
+
+// ── Web Speech helpers ────────────────────────────────────────────────────────
+
 function buildWordPositions(text: string): WordPosition[] {
   const positions: WordPosition[] = [];
   const regex = /\S+/g;
@@ -36,23 +52,19 @@ function pickVoice(): SpeechSynthesisVoice | null {
 
   const lc = (v: SpeechSynthesisVoice) => v.name.toLowerCase();
 
-  // Edge neural voices are the best available in any browser
   const natural = voices.find(v => lc(v).includes('natural'));
   if (natural) return natural;
 
-  // Chrome cloud voices — prefer US over UK for more natural prosody
   const googleUS = voices.find(v => lc(v) === 'google us english');
   if (googleUS) return googleUS;
   const googleUK = voices.find(v => lc(v).includes('google') && lc(v).includes('english'));
   if (googleUK) return googleUK;
 
-  // Microsoft online voices (Edge without Neural tag)
   for (const name of ['aria', 'jenny', 'sonia', 'libby', 'emma', 'guy']) {
     const found = voices.find(v => lc(v).includes(name));
     if (found) return found;
   }
 
-  // macOS / iOS voices
   for (const name of ['samantha', 'karen', 'moira', 'tessa']) {
     const found = voices.find(v => lc(v).includes(name));
     if (found) return found;
@@ -61,8 +73,12 @@ function pickVoice(): SpeechSynthesisVoice | null {
   return voices.find(v => v.lang.startsWith('en')) ?? voices[0];
 }
 
+// ── Hook ─────────────────────────────────────────────────────────────────────
+
 export function useSpeech(): UseSpeechReturn {
-  const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  const webSupported = !isNative && typeof window !== 'undefined' && 'speechSynthesis' in window;
+  const supported = isNative || webSupported;
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(-1);
@@ -79,6 +95,24 @@ export function useSpeech(): UseSpeechReturn {
 
   useEffect(() => {
     if (!supported) return;
+
+    if (isNative && NativeTts) {
+      let removeListener: (() => void) | null = null;
+      NativeTts.addListener('ttsDone', () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentWordIndex(-1);
+      }).then(handle => {
+        removeListener = () => handle.remove();
+      });
+      return () => {
+        NativeTts.stop();
+        clearFallback();
+        if (removeListener) removeListener();
+      };
+    }
+
+    // Web Speech setup
     window.speechSynthesis.getVoices();
     const handler = () => window.speechSynthesis.getVoices();
     window.speechSynthesis.addEventListener('voiceschanged', handler);
@@ -92,7 +126,11 @@ export function useSpeech(): UseSpeechReturn {
   const stop = useCallback(() => {
     if (!supported) return;
     clearFallback();
-    window.speechSynthesis.cancel();
+    if (isNative && NativeTts) {
+      NativeTts.stop();
+    } else {
+      window.speechSynthesis.cancel();
+    }
     setIsPlaying(false);
     setIsPaused(false);
     setCurrentWordIndex(-1);
@@ -101,6 +139,17 @@ export function useSpeech(): UseSpeechReturn {
   const speak = useCallback((text: string) => {
     if (!supported) return;
     clearFallback();
+
+    if (isNative && NativeTts) {
+      setCurrentWordIndex(-1);
+      setWordPositions([]);
+      setIsPlaying(true);
+      setIsPaused(false);
+      NativeTts.speak({ text, rate: 0.85 });
+      return;
+    }
+
+    // Web Speech path
     window.speechSynthesis.cancel();
     setCurrentWordIndex(-1);
 
@@ -136,12 +185,9 @@ export function useSpeech(): UseSpeechReturn {
     utterance.onstart = () => {
       setIsPlaying(true);
       setIsPaused(false);
-      // If no boundary events arrive within 700ms, fall back to time-based highlighting.
-      // Chrome cloud voices sometimes don't fire onboundary despite playing fine.
       setTimeout(() => {
         if (boundaryFired || positions.length === 0) return;
         let wordIdx = 0;
-        // 130 WPM baseline scaled by rate — gives ms per word
         const msPerWord = Math.round(60_000 / (130 * utterance.rate));
         fallbackTimerRef.current = setInterval(() => {
           if (wordIdx < positions.length) {
@@ -167,7 +213,7 @@ export function useSpeech(): UseSpeechReturn {
   }, [supported]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pause = useCallback(() => {
-    if (!supported || !isPlaying) return;
+    if (!supported || isNative || !isPlaying) return;
     clearFallback();
     window.speechSynthesis.pause();
     setIsPaused(true);
@@ -175,7 +221,7 @@ export function useSpeech(): UseSpeechReturn {
   }, [supported, isPlaying]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const resume = useCallback(() => {
-    if (!supported || !isPaused) return;
+    if (!supported || isNative || !isPaused) return;
     window.speechSynthesis.resume();
     setIsPaused(false);
     setIsPlaying(true);
