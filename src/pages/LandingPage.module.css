@@ -64,6 +64,23 @@
   gap: 0;
 }
 
+/* ── Back link ── */
+.backLink {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  text-decoration: none;
+  transition: color 0.2s;
+  z-index: 10;
+}
+.backLink:hover { color: rgba(255, 255, 255, 0.7); }
+
 /* ── Brand / title ── */
 .brand {
   text-align: center;

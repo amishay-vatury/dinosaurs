@@ -15,9 +15,10 @@ interface Props {
   questions: QuizQuestion[];
   accentColor: string;
   speech: UseSpeechReturn;
+  completionMessage?: string;
 }
 
-export function QuizSection({ questions, accentColor, speech }: Props) {
+export function QuizSection({ questions, accentColor, speech, completionMessage }: Props) {
   const [states, setStates] = useState<QuestionState[]>(
     questions.map(() => ({ selected: null, status: 'idle' }))
   );
@@ -169,7 +170,7 @@ export function QuizSection({ questions, accentColor, speech }: Props) {
 
       {totalCorrect === questions.length && (
         <div className={styles.allCorrect}>
-          🦕 Perfect score! You know your dinosaurs!
+          {completionMessage ?? '🦕 Perfect score! You know your dinosaurs!'}
         </div>
       )}
     </div>

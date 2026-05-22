@@ -1,94 +1,112 @@
-import { useParams, Link, useNavigate, useSearchParams, Navigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import { useMemo, useEffect, useState } from 'react';
-import { dinosaurs, periodColors } from '../data/dinosaurs';
-import type { Period, Dinosaur } from '../data/dinosaurs';
-import { quizData } from '../data/quizData';
+import { animals, animalsByCategory, categoryColors, categoryInfo } from '../data/animalsData';
+import type { AnimalCategory, Animal } from '../data/animalsData';
+import { animalQuizData } from '../data/animalQuizData';
 import { useSpeech } from '../hooks/useSpeech';
 import { WordHighlighter } from '../components/WordHighlighter';
 import { QuizSection } from '../components/QuizSection';
-import { DinoImage } from '../components/DinoImage';
-import styles from './DinosaurPage.module.css';
+import { AnimalImage } from '../components/AnimalImage';
+import styles from './AnimalDetailPage.module.css';
 
 const DIET_EMOJI: Record<string, string> = {
-  Carnivore: '🥩', Herbivore: '🌿', Omnivore: '🌾', Piscivore: '🐟',
+  Carnivore: '🥩',
+  Herbivore: '🌿',
+  Omnivore:  '🌾',
+  'Carnivore (krill)': '🦐',
+  'Carnivore (jellyfish)': '🪼',
+  'Carnivore (mainly other snakes)': '🐍',
+  'Carnivore (insects)': '🦟',
+  'Herbivore (nectar & milkweed)': '🌸',
+  'Herbivore (algae)': '🌿',
+  'Herbivore (nectar & pollen)': '🌼',
+  'Omnivore (nectar & insects)': '🌸',
+  'Omnivore (fruit, insects, eggs)': '🍓',
+  'Carnivore / Omnivore': '🥩',
+  'Carnivore (plankton filter feeder)': '🌊',
 };
 
 const DIET_SPOKEN: Record<string, string> = {
-  Carnivore: 'meat-eating', Herbivore: 'plant-eating',
-  Omnivore: 'omnivore', Piscivore: 'fish-eating',
+  Carnivore: 'meat-eating',
+  Herbivore: 'plant-eating',
+  Omnivore:  'omnivore',
 };
 
-function statsNarration(d: Dinosaur): string {
-  const loc = d.location.replace(/\s*\([^)]*\)/g, '').replace(/\s{2,}/g, ' ').trim();
-  const len = d.length.replace(/~/g, 'about ').replace(/\bm\b/g, 'meters');
-  const wt  = d.weight.replace(/~/g, 'about ').replace(/\bkg\b/g, 'kilograms');
-  return `${d.name} was a ${DIET_SPOKEN[d.diet] ?? d.diet.toLowerCase()} dinosaur. ` +
-    `It was ${len} long and weighed ${wt}. ` +
-    `It was found in ${loc}.`;
+function getDietSpoken(diet: string): string {
+  return DIET_SPOKEN[diet] ?? diet.toLowerCase();
 }
 
-export function DinosaurPage() {
-  const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
+function getDietEmoji(diet: string): string {
+  return DIET_EMOJI[diet] ?? (diet.toLowerCase().includes('carnivore') ? '🥩' : diet.toLowerCase().includes('herbivore') ? '🌿' : '🌾');
+}
+
+function statsNarration(a: Animal): string {
+  const loc = a.location.replace(/\s*\([^)]*\)/g, '').replace(/\s{2,}/g, ' ').trim();
+  return `${a.name} is a ${getDietSpoken(a.diet)} ${categoryInfo[a.category].name.toLowerCase().replace(/s$/, '')}. ` +
+    `Its size is ${a.size} and it weighs ${a.weight}. ` +
+    `It lives in ${loc}.`;
+}
+
+export function AnimalDetailPage() {
+  const { category, id } = useParams<{ category: string; id: string }>();
   const navigate = useNavigate();
 
-  const periodParam = searchParams.get('period') as Period | null;
-  const dinosaur = useMemo(() => dinosaurs.find(d => d.id === id), [id]);
+  const cat = category as AnimalCategory | undefined;
+  const animal = useMemo(() => animals.find(a => a.id === id && a.category === cat), [id, cat]);
   const speech = useSpeech();
   const [speakingTarget, setSpeakingTarget] = useState<'desc' | number | null>(null);
 
-  const periodList = useMemo(() => {
-    const list = periodParam
-      ? dinosaurs.filter(d => d.period === periodParam)
-      : dinosaurs;
-    return [...list].sort((a, b) => a.name.localeCompare(b.name));
-  }, [periodParam]);
+  const categoryList = useMemo(() => {
+    if (!cat) return [];
+    return animalsByCategory[cat] ?? [];
+  }, [cat]);
 
   const currentIdx = useMemo(
-    () => periodList.findIndex(d => d.id === id),
-    [periodList, id]
+    () => categoryList.findIndex(a => a.id === id),
+    [categoryList, id]
   );
 
-  const prev = currentIdx > 0 ? periodList[currentIdx - 1] : null;
-  const next = currentIdx < periodList.length - 1 ? periodList[currentIdx + 1] : null;
+  const prev = currentIdx > 0 ? categoryList[currentIdx - 1] : null;
+  const next = currentIdx < categoryList.length - 1 ? categoryList[currentIdx + 1] : null;
 
-  const navTo = (dinoId: string) =>
-    `/dinosaur/${dinoId}${periodParam ? `?period=${periodParam}` : ''}`;
+  const navTo = (animalId: string) => `/animals/${cat}/${animalId}`;
 
   useEffect(() => {
     speech.stop();
     setSpeakingTarget(null);
     window.scrollTo({ top: 0 });
 
-    if (!dinosaur) return;
+    if (!animal) return;
 
-    const alreadyPlayed = sessionStorage.getItem('dinoInstructionsPlayed');
-    const stats = statsNarration(dinosaur);
+    const alreadyPlayed = sessionStorage.getItem('animalInstructionsPlayed');
+    const stats = statsNarration(animal);
+    const catName = categoryInfo[animal.category]?.name ?? 'animals';
     const message = alreadyPlayed
-      ? `Meet ${dinosaur.name}! ${stats}`
-      : `Meet ${dinosaur.name}! ${stats} ` +
-        `Press the play button to hear all about this dinosaur, ` +
+      ? `Meet ${animal.name}! ${stats}`
+      : `Meet ${animal.name}! ${stats} ` +
+        `Press the play button to hear all about this animal, ` +
         `and tap any fun fact to hear it out loud. ` +
-        `Use the arrows at the bottom to explore more dinosaurs!`;
+        `Use the arrows at the bottom to explore more ${catName}!`;
 
     const timer = setTimeout(() => {
-      if (!alreadyPlayed) sessionStorage.setItem('dinoInstructionsPlayed', 'true');
+      if (!alreadyPlayed) sessionStorage.setItem('animalInstructionsPlayed', 'true');
       speech.speak(message);
     }, 500);
     return () => clearTimeout(timer);
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!dinosaur) return <Navigate to="/" replace />;
+  if (!animal || !cat) return <Navigate to="/" replace />;
 
-  const questions = quizData[dinosaur.id] ?? [];
-  const periodColor = periodColors[dinosaur.period];
+  const questions = animalQuizData[animal.id] ?? [];
+  const accentColor = categoryColors[animal.category];
+  const catInfo = categoryInfo[animal.category];
 
   const handleDescPlay = () => {
     if (speech.isPaused && speakingTarget === 'desc') {
       speech.resume();
     } else {
       setSpeakingTarget('desc');
-      speech.speak(dinosaur.description);
+      speech.speak(animal.description);
     }
   };
 
@@ -108,16 +126,14 @@ export function DinosaurPage() {
     <div className={styles.page}>
       {/* Top bar */}
       <header className={styles.topBar}>
-        <Link to="/dinosaurs" className={styles.logoLink} onClick={handleStop}>
-          <span className={styles.logoText}>Dinosaurs Land</span>
+        <Link to="/" className={styles.logoLink} onClick={handleStop}>
+          <span className={styles.logoText}>Cool Creatures We Love</span>
         </Link>
-        {periodParam && (
-          <span className={styles.periodCrumb} style={{ color: periodColor }}>
-            {periodParam}
-          </span>
-        )}
-        <span className={styles.dinoCount}>
-          {currentIdx + 1} / {periodList.length}
+        <span className={styles.categoryCrumb} style={{ color: accentColor }}>
+          {catInfo.emoji} {catInfo.name}
+        </span>
+        <span className={styles.animalCount}>
+          {currentIdx + 1} / {categoryList.length}
         </span>
       </header>
 
@@ -126,40 +142,46 @@ export function DinosaurPage() {
         {/* Quiz sidebar */}
         <aside className={styles.quizCol}>
           {questions.length > 0 ? (
-            <QuizSection key={dinosaur.id} questions={questions} accentColor={periodColor} speech={speech} />
+            <QuizSection
+              key={animal.id}
+              questions={questions}
+              accentColor={accentColor}
+              speech={speech}
+              completionMessage={`🎉 Perfect score! You really know your ${catInfo.name.toLowerCase()}!`}
+            />
           ) : (
-            <p className={styles.noQuiz}>No quiz for this dinosaur yet.</p>
+            <p className={styles.noQuiz}>No quiz for this animal yet.</p>
           )}
         </aside>
 
         {/* Main content */}
         <main className={styles.mainCol}>
-          {/* Hero image — tall, shows full dinosaur */}
-          <div className={styles.imageWrap} style={{ borderBottomColor: periodColor }}>
-            <DinoImage
-              dinoName={dinosaur.name}
-              accentColor={periodColor}
-              imageUrl={dinosaur.imageUrl}
+          {/* Hero image */}
+          <div className={styles.imageWrap} style={{ borderBottomColor: accentColor }}>
+            <AnimalImage
+              animalName={animal.name}
+              wikiTitle={animal.wikiTitle}
+              accentColor={accentColor}
               variant="hero"
             />
             <div className={styles.imageOverlay}>
               <span
-                className={styles.periodPill}
-                style={{ backgroundColor: periodColor + 'cc' }}
+                className={styles.categoryPill}
+                style={{ backgroundColor: accentColor + 'cc' }}
               >
-                {dinosaur.period} · {dinosaur.periodRange}
+                {catInfo.emoji} {catInfo.name}
               </span>
-              <h1 className={styles.dinoName}>{dinosaur.name}</h1>
+              <h1 className={styles.animalName}>{animal.name}</h1>
             </div>
           </div>
 
           {/* Stats strip */}
           <div className={styles.statsRow}>
             {[
-              { label: 'Diet',     value: `${DIET_EMOJI[dinosaur.diet]} ${dinosaur.diet}` },
-              { label: 'Length',   value: `📏 ${dinosaur.length}` },
-              { label: 'Weight',   value: `⚖️ ${dinosaur.weight}` },
-              { label: 'Found in', value: `📍 ${dinosaur.location}` },
+              { label: 'Diet',    value: `${getDietEmoji(animal.diet)} ${animal.diet}` },
+              { label: 'Size',    value: `📏 ${animal.size}` },
+              { label: 'Weight',  value: `⚖️ ${animal.weight}` },
+              { label: 'Habitat', value: `📍 ${animal.location}` },
             ].map(({ label, value }) => (
               <div key={label} className={styles.stat}>
                 <span className={styles.statLabel}>{label}</span>
@@ -173,9 +195,9 @@ export function DinosaurPage() {
             <div className={styles.sectionHead}>
               <h2 className={styles.sectionTitle}>Description</h2>
             </div>
-            <div className={styles.descBox} style={{ borderColor: periodColor + '2a' }}>
+            <div className={styles.descBox} style={{ borderColor: accentColor + '2a' }}>
               <WordHighlighter
-                text={dinosaur.description}
+                text={animal.description}
                 wordPositions={speakingTarget === 'desc' ? speech.wordPositions : []}
                 currentWordIndex={speakingTarget === 'desc' ? speech.currentWordIndex : -1}
                 isActive={isDescSpeaking}
@@ -185,7 +207,7 @@ export function DinosaurPage() {
               <div className={styles.ttsRow}>
                 <button
                   className={styles.listenBtn}
-                  style={{ '--accent': periodColor } as React.CSSProperties}
+                  style={{ '--accent': accentColor } as React.CSSProperties}
                   onClick={handleDescPlay}
                   disabled={speech.isPlaying && speakingTarget === 'desc'}
                   aria-label={
@@ -193,7 +215,7 @@ export function DinosaurPage() {
                     speech.isPaused && speakingTarget === 'desc' ? 'Resume' : 'Listen'
                   }
                 >
-                  <span className={styles.listenDino}>🦕</span>
+                  <span className={styles.listenIcon}>{catInfo.emoji}</span>
                   {speech.isPlaying && speakingTarget === 'desc' ? (
                     <SoundBars />
                   ) : (
@@ -209,7 +231,7 @@ export function DinosaurPage() {
                 {isDescSpeaking && speech.wordPositions.length > 0 && (
                   <div className={styles.progress}>
                     <div className={styles.progressFill} style={{
-                      backgroundColor: periodColor,
+                      backgroundColor: accentColor,
                       width: `${((speech.currentWordIndex + 1) / speech.wordPositions.length) * 100}%`,
                     }} />
                   </div>
@@ -223,19 +245,19 @@ export function DinosaurPage() {
             <h2 className={styles.sectionTitle}>Fun Facts</h2>
             <p className={styles.factHint}>Tap any fact to hear it</p>
             <ul className={styles.facts}>
-              {dinosaur.funFacts.map((fact, i) => {
+              {animal.funFacts.map((fact, i) => {
                 const active = speakingTarget === i && speech.isPlaying;
                 return (
                   <li
                     key={i}
                     className={`${styles.fact} ${active ? styles.factActive : ''}`}
-                    style={{ borderLeftColor: periodColor }}
+                    style={{ borderLeftColor: accentColor }}
                     onClick={() => handleFactPlay(i, fact)}
                     role="button"
                     tabIndex={0}
                     onKeyDown={e => e.key === 'Enter' && handleFactPlay(i, fact)}
                   >
-                    <span className={styles.factNum} style={{ color: periodColor }}>
+                    <span className={styles.factNum} style={{ color: accentColor }}>
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     <span className={styles.factText}>{fact}</span>
@@ -246,7 +268,7 @@ export function DinosaurPage() {
             </ul>
           </section>
 
-          {/* Bottom prev / next */}
+          {/* Bottom prev / next — sticky so always at bottom */}
           <nav className={styles.bottomNav}>
             {prev ? (
               <button
@@ -259,8 +281,8 @@ export function DinosaurPage() {
             ) : (
               <span />
             )}
-            <Link to="/dinosaurs" className={styles.bottomNavHome} onClick={handleStop}>
-              <span className={styles.bottomNavHomeLabel}>Dinosaurs Land</span>
+            <Link to="/" className={styles.bottomNavHome} onClick={handleStop}>
+              <span className={styles.bottomNavHomeLabel}>Cool Creatures</span>
             </Link>
             {next ? (
               <button

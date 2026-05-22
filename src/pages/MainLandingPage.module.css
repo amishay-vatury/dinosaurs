@@ -1,0 +1,249 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 100%, rgba(4, 16, 28, 1) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 90% at 10% 60%, rgba(6, 24, 42, 0.8) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 65% at 90% 20%, rgba(3, 12, 22, 0.7) 0%, transparent 50%),
+    linear-gradient(180deg, #02060e 0%, #050d18 40%, #040810 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px 64px;
+  position: relative;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,255,255,0.02) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 52px;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: fadeUp 1s ease both;
+}
+
+.eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0;
+}
+
+.title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.8rem, 8vw, 6rem);
+  font-weight: 300;
+  line-height: 1.0;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.tagline {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.78rem, 1.4vw, 0.94rem);
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  animation: fadeUp 1s 0.25s ease both;
+}
+
+/* ── Card ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  position: relative;
+  text-align: left;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent, rgba(255,255,255,0.2));
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--accent, rgba(255,255,255,0.1));
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.card:active {
+  transform: translateY(-1px);
+}
+
+.cardPending {
+  border-color: var(--accent, rgba(255,255,255,0.4)) !important;
+  box-shadow: 0 0 24px var(--accent, rgba(255,255,255,0.15)), 0 8px 32px rgba(0,0,0,0.4) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ── Card image area ── */
+.cardImg {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.4);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardSkeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #0c1420 25%, #14203a 50%, #0c1420 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.cardPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  filter: saturate(0.85) brightness(0.75);
+  position: absolute;
+  inset: 0;
+}
+
+.cardPhotoLoaded {
+  opacity: 1;
+}
+
+.cardEmoji {
+  font-size: 4rem;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
+}
+
+/* ── Card body ── */
+.cardBody {
+  padding: 18px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.cardEmoji2 {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.cardName {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.cardTagline {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+/* ── "Tap again" hint ── */
+.cardHint {
+  margin: 0 20px 16px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: var(--accent, rgba(255,255,255,0.15));
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #fff;
+  text-align: center;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 1; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .cardImg {
+    height: 140px;
+  }
+  .page {
+    padding: 32px 16px 48px;
+  }
+  .content {
+    gap: 36px;
+  }
+}

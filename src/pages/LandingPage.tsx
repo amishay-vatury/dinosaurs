@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useMemo, useState, useEffect } from 'react';
 import { dinosaurs } from '../data/dinosaurs';
 import type { Period } from '../data/dinosaurs';
@@ -78,6 +78,9 @@ export function LandingPage() {
       <div className={styles.overlay} />
 
       <div className={styles.content}>
+        <Link to="/" className={styles.backLink} onClick={() => speech.stop()}>
+          ← Cool Creatures We Love
+        </Link>
         <div className={styles.brand}>
           <p className={styles.eyebrow}>Explore the prehistoric world</p>
           <h1 className={styles.title}>Dinosaurs Land</h1>
